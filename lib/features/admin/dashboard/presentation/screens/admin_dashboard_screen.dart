@@ -30,7 +30,9 @@ class AdminDashboardScreen extends ConsumerWidget {
                 runSpacing: 16,
                 children: [
                   _StatCard(label: 'Total Sales', value: formatCurrency(stats.totalSales), icon: Icons.payments_outlined),
+                  _StatCard(label: 'Sales Today', value: formatCurrency(stats.salesToday), icon: Icons.monetization_on_outlined, accent: AppColors.primary),
                   _StatCard(label: 'Total Orders', value: '${stats.totalOrders}', icon: Icons.receipt_long_outlined),
+                  _StatCard(label: 'Orders Today', value: '${stats.ordersToday}', icon: Icons.shopping_bag_outlined, accent: AppColors.primary),
                   _StatCard(label: 'Customers', value: '${stats.totalCustomers}', icon: Icons.people_outline),
                   _StatCard(label: 'Products', value: '${stats.totalProducts}', icon: Icons.inventory_2_outlined),
                   _StatCard(

@@ -8,6 +8,7 @@ import '../../features/admin/customers/presentation/screens/admin_customers_scre
 import '../../features/admin/dashboard/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/admin/orders/presentation/screens/admin_order_details_screen.dart';
 import '../../features/admin/orders/presentation/screens/admin_orders_screen.dart';
+import '../../features/admin/inventory/presentation/screens/admin_inventory_list_screen.dart';
 import '../../features/admin/permissions/presentation/screens/admin_permissions_screen.dart';
 import '../../features/admin/presentation/widgets/admin_shell.dart';
 import '../../features/admin/products/presentation/screens/admin_add_product_screen.dart';
@@ -80,6 +81,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/admin/categories', builder: (context, state) => const AdminCategoriesScreen()),
           GoRoute(path: '/admin/transactions', builder: (context, state) => const AdminTransactionsScreen()),
           GoRoute(path: '/admin/brands', builder: (context, state) => const AdminBrandsScreen()),
+          GoRoute(path: '/admin/inventory', builder: (context, state) => const AdminInventoryListScreen()),
           GoRoute(path: '/admin/products/new', builder: (context, state) => const AdminAddProductScreen()),
           GoRoute(path: '/admin/products/media', builder: (context, state) => const AdminProductMediaScreen()),
           GoRoute(path: '/admin/products', builder: (context, state) => const AdminProductListScreen()),

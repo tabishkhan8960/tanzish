@@ -24,6 +24,7 @@ const _mainMenu = [
 ];
 
 const _productMenu = [
+  _AdminNavItem(Icons.inventory_2_outlined, 'Inventory', '/admin/inventory'),
   _AdminNavItem(Icons.add_box_outlined, 'Add Products', '/admin/products/new'),
   _AdminNavItem(Icons.perm_media_outlined, 'Product Media', '/admin/products/media'),
   _AdminNavItem(Icons.list_alt_outlined, 'Product List', '/admin/products'),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Product {
 
- String get id; String get name; String get slug; String? get description; String? get brandId; String? get categoryId; String? get sku; num get price; num? get compareAtPrice; Map<String, dynamic> get attributes; num get ratingAvg; int get ratingCount; bool get isActive; bool get isFeatured; Brand? get brand; Category? get category;@JsonKey(name: 'product_images') List<ProductImage> get images;
+ String get id; String get name; String get slug; String? get description; String? get brandId; String? get categoryId; String? get sku; num get price; num? get compareAtPrice; num? get costPrice; String? get barcode; num? get weightGrams; Map<String, dynamic> get attributes; num get ratingAvg; int get ratingCount; bool get isActive; bool get isFeatured; Brand? get brand; Category? get category;@JsonKey(name: 'product_images') List<ProductImage> get images;
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ProductCopyWith<Product> get copyWith => _$ProductCopyWithImpl<Product>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&const DeepCollectionEquality().equals(other.attributes, attributes)&&(identical(other.ratingAvg, ratingAvg) || other.ratingAvg == ratingAvg)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other.images, images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&(identical(other.costPrice, costPrice) || other.costPrice == costPrice)&&(identical(other.barcode, barcode) || other.barcode == barcode)&&(identical(other.weightGrams, weightGrams) || other.weightGrams == weightGrams)&&const DeepCollectionEquality().equals(other.attributes, attributes)&&(identical(other.ratingAvg, ratingAvg) || other.ratingAvg == ratingAvg)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other.images, images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,slug,description,brandId,categoryId,sku,price,compareAtPrice,const DeepCollectionEquality().hash(attributes),ratingAvg,ratingCount,isActive,isFeatured,brand,category,const DeepCollectionEquality().hash(images));
+int get hashCode => Object.hashAll([runtimeType,id,name,slug,description,brandId,categoryId,sku,price,compareAtPrice,costPrice,barcode,weightGrams,const DeepCollectionEquality().hash(attributes),ratingAvg,ratingCount,isActive,isFeatured,brand,category,const DeepCollectionEquality().hash(images)]);
 
 @override
 String toString() {
-  return 'Product(id: $id, name: $name, slug: $slug, description: $description, brandId: $brandId, categoryId: $categoryId, sku: $sku, price: $price, compareAtPrice: $compareAtPrice, attributes: $attributes, ratingAvg: $ratingAvg, ratingCount: $ratingCount, isActive: $isActive, isFeatured: $isFeatured, brand: $brand, category: $category, images: $images)';
+  return 'Product(id: $id, name: $name, slug: $slug, description: $description, brandId: $brandId, categoryId: $categoryId, sku: $sku, price: $price, compareAtPrice: $compareAtPrice, costPrice: $costPrice, barcode: $barcode, weightGrams: $weightGrams, attributes: $attributes, ratingAvg: $ratingAvg, ratingCount: $ratingCount, isActive: $isActive, isFeatured: $isFeatured, brand: $brand, category: $category, images: $images)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ProductCopyWith<$Res>  {
   factory $ProductCopyWith(Product value, $Res Function(Product) _then) = _$ProductCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String slug, String? description, String? brandId, String? categoryId, String? sku, num price, num? compareAtPrice, Map<String, dynamic> attributes, num ratingAvg, int ratingCount, bool isActive, bool isFeatured, Brand? brand, Category? category,@JsonKey(name: 'product_images') List<ProductImage> images
+ String id, String name, String slug, String? description, String? brandId, String? categoryId, String? sku, num price, num? compareAtPrice, num? costPrice, String? barcode, num? weightGrams, Map<String, dynamic> attributes, num ratingAvg, int ratingCount, bool isActive, bool isFeatured, Brand? brand, Category? category,@JsonKey(name: 'product_images') List<ProductImage> images
 });
 
 
@@ -65,7 +65,7 @@ class _$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? description = freezed,Object? brandId = freezed,Object? categoryId = freezed,Object? sku = freezed,Object? price = null,Object? compareAtPrice = freezed,Object? attributes = null,Object? ratingAvg = null,Object? ratingCount = null,Object? isActive = null,Object? isFeatured = null,Object? brand = freezed,Object? category = freezed,Object? images = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? description = freezed,Object? brandId = freezed,Object? categoryId = freezed,Object? sku = freezed,Object? price = null,Object? compareAtPrice = freezed,Object? costPrice = freezed,Object? barcode = freezed,Object? weightGrams = freezed,Object? attributes = null,Object? ratingAvg = null,Object? ratingCount = null,Object? isActive = null,Object? isFeatured = null,Object? brand = freezed,Object? category = freezed,Object? images = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -76,6 +76,9 @@ as String?,categoryId: freezed == categoryId ? _self.categoryId : categoryId // 
 as String?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non_nullable
 as String?,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as num,compareAtPrice: freezed == compareAtPrice ? _self.compareAtPrice : compareAtPrice // ignore: cast_nullable_to_non_nullable
+as num?,costPrice: freezed == costPrice ? _self.costPrice : costPrice // ignore: cast_nullable_to_non_nullable
+as num?,barcode: freezed == barcode ? _self.barcode : barcode // ignore: cast_nullable_to_non_nullable
+as String?,weightGrams: freezed == weightGrams ? _self.weightGrams : weightGrams // ignore: cast_nullable_to_non_nullable
 as num?,attributes: null == attributes ? _self.attributes : attributes // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,ratingAvg: null == ratingAvg ? _self.ratingAvg : ratingAvg // ignore: cast_nullable_to_non_nullable
 as num,ratingCount: null == ratingCount ? _self.ratingCount : ratingCount // ignore: cast_nullable_to_non_nullable
@@ -193,10 +196,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  num? costPrice,  String? barcode,  num? weightGrams,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.costPrice,_that.barcode,_that.weightGrams,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
   return orElse();
 
 }
@@ -214,10 +217,10 @@ return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  num? costPrice,  String? barcode,  num? weightGrams,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)  $default,) {final _that = this;
 switch (_that) {
 case _Product():
-return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.costPrice,_that.barcode,_that.weightGrams,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -234,10 +237,10 @@ return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String slug,  String? description,  String? brandId,  String? categoryId,  String? sku,  num price,  num? compareAtPrice,  num? costPrice,  String? barcode,  num? weightGrams,  Map<String, dynamic> attributes,  num ratingAvg,  int ratingCount,  bool isActive,  bool isFeatured,  Brand? brand,  Category? category, @JsonKey(name: 'product_images')  List<ProductImage> images)?  $default,) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_that.categoryId,_that.sku,_that.price,_that.compareAtPrice,_that.costPrice,_that.barcode,_that.weightGrams,_that.attributes,_that.ratingAvg,_that.ratingCount,_that.isActive,_that.isFeatured,_that.brand,_that.category,_that.images);case _:
   return null;
 
 }
@@ -249,7 +252,7 @@ return $default(_that.id,_that.name,_that.slug,_that.description,_that.brandId,_
 @JsonSerializable()
 
 class _Product extends Product {
-  const _Product({required this.id, required this.name, required this.slug, this.description, this.brandId, this.categoryId, this.sku, required this.price, this.compareAtPrice, final  Map<String, dynamic> attributes = const {}, this.ratingAvg = 0, this.ratingCount = 0, this.isActive = true, this.isFeatured = false, this.brand, this.category, @JsonKey(name: 'product_images') final  List<ProductImage> images = const []}): _attributes = attributes,_images = images,super._();
+  const _Product({required this.id, required this.name, required this.slug, this.description, this.brandId, this.categoryId, this.sku, required this.price, this.compareAtPrice, this.costPrice, this.barcode, this.weightGrams, final  Map<String, dynamic> attributes = const {}, this.ratingAvg = 0, this.ratingCount = 0, this.isActive = true, this.isFeatured = false, this.brand, this.category, @JsonKey(name: 'product_images') final  List<ProductImage> images = const []}): _attributes = attributes,_images = images,super._();
   factory _Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
 @override final  String id;
@@ -261,6 +264,9 @@ class _Product extends Product {
 @override final  String? sku;
 @override final  num price;
 @override final  num? compareAtPrice;
+@override final  num? costPrice;
+@override final  String? barcode;
+@override final  num? weightGrams;
  final  Map<String, dynamic> _attributes;
 @override@JsonKey() Map<String, dynamic> get attributes {
   if (_attributes is EqualUnmodifiableMapView) return _attributes;
@@ -295,16 +301,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&const DeepCollectionEquality().equals(other._attributes, _attributes)&&(identical(other.ratingAvg, ratingAvg) || other.ratingAvg == ratingAvg)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other._images, _images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&(identical(other.description, description) || other.description == description)&&(identical(other.brandId, brandId) || other.brandId == brandId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&(identical(other.costPrice, costPrice) || other.costPrice == costPrice)&&(identical(other.barcode, barcode) || other.barcode == barcode)&&(identical(other.weightGrams, weightGrams) || other.weightGrams == weightGrams)&&const DeepCollectionEquality().equals(other._attributes, _attributes)&&(identical(other.ratingAvg, ratingAvg) || other.ratingAvg == ratingAvg)&&(identical(other.ratingCount, ratingCount) || other.ratingCount == ratingCount)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.isFeatured, isFeatured) || other.isFeatured == isFeatured)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.category, category) || other.category == category)&&const DeepCollectionEquality().equals(other._images, _images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,slug,description,brandId,categoryId,sku,price,compareAtPrice,const DeepCollectionEquality().hash(_attributes),ratingAvg,ratingCount,isActive,isFeatured,brand,category,const DeepCollectionEquality().hash(_images));
+int get hashCode => Object.hashAll([runtimeType,id,name,slug,description,brandId,categoryId,sku,price,compareAtPrice,costPrice,barcode,weightGrams,const DeepCollectionEquality().hash(_attributes),ratingAvg,ratingCount,isActive,isFeatured,brand,category,const DeepCollectionEquality().hash(_images)]);
 
 @override
 String toString() {
-  return 'Product(id: $id, name: $name, slug: $slug, description: $description, brandId: $brandId, categoryId: $categoryId, sku: $sku, price: $price, compareAtPrice: $compareAtPrice, attributes: $attributes, ratingAvg: $ratingAvg, ratingCount: $ratingCount, isActive: $isActive, isFeatured: $isFeatured, brand: $brand, category: $category, images: $images)';
+  return 'Product(id: $id, name: $name, slug: $slug, description: $description, brandId: $brandId, categoryId: $categoryId, sku: $sku, price: $price, compareAtPrice: $compareAtPrice, costPrice: $costPrice, barcode: $barcode, weightGrams: $weightGrams, attributes: $attributes, ratingAvg: $ratingAvg, ratingCount: $ratingCount, isActive: $isActive, isFeatured: $isFeatured, brand: $brand, category: $category, images: $images)';
 }
 
 
@@ -315,7 +321,7 @@ abstract mixin class _$ProductCopyWith<$Res> implements $ProductCopyWith<$Res> {
   factory _$ProductCopyWith(_Product value, $Res Function(_Product) _then) = __$ProductCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String slug, String? description, String? brandId, String? categoryId, String? sku, num price, num? compareAtPrice, Map<String, dynamic> attributes, num ratingAvg, int ratingCount, bool isActive, bool isFeatured, Brand? brand, Category? category,@JsonKey(name: 'product_images') List<ProductImage> images
+ String id, String name, String slug, String? description, String? brandId, String? categoryId, String? sku, num price, num? compareAtPrice, num? costPrice, String? barcode, num? weightGrams, Map<String, dynamic> attributes, num ratingAvg, int ratingCount, bool isActive, bool isFeatured, Brand? brand, Category? category,@JsonKey(name: 'product_images') List<ProductImage> images
 });
 
 
@@ -332,7 +338,7 @@ class __$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? description = freezed,Object? brandId = freezed,Object? categoryId = freezed,Object? sku = freezed,Object? price = null,Object? compareAtPrice = freezed,Object? attributes = null,Object? ratingAvg = null,Object? ratingCount = null,Object? isActive = null,Object? isFeatured = null,Object? brand = freezed,Object? category = freezed,Object? images = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? description = freezed,Object? brandId = freezed,Object? categoryId = freezed,Object? sku = freezed,Object? price = null,Object? compareAtPrice = freezed,Object? costPrice = freezed,Object? barcode = freezed,Object? weightGrams = freezed,Object? attributes = null,Object? ratingAvg = null,Object? ratingCount = null,Object? isActive = null,Object? isFeatured = null,Object? brand = freezed,Object? category = freezed,Object? images = null,}) {
   return _then(_Product(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -343,6 +349,9 @@ as String?,categoryId: freezed == categoryId ? _self.categoryId : categoryId // 
 as String?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non_nullable
 as String?,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as num,compareAtPrice: freezed == compareAtPrice ? _self.compareAtPrice : compareAtPrice // ignore: cast_nullable_to_non_nullable
+as num?,costPrice: freezed == costPrice ? _self.costPrice : costPrice // ignore: cast_nullable_to_non_nullable
+as num?,barcode: freezed == barcode ? _self.barcode : barcode // ignore: cast_nullable_to_non_nullable
+as String?,weightGrams: freezed == weightGrams ? _self.weightGrams : weightGrams // ignore: cast_nullable_to_non_nullable
 as num?,attributes: null == attributes ? _self._attributes : attributes // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,ratingAvg: null == ratingAvg ? _self.ratingAvg : ratingAvg // ignore: cast_nullable_to_non_nullable
 as num,ratingCount: null == ratingCount ? _self.ratingCount : ratingCount // ignore: cast_nullable_to_non_nullable
