@@ -64,6 +64,65 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-22 — Real product image upload, replacing the comma-separated-URL placeholder
+
+- User asked for a Shopify/WooCommerce-style upload experience on the Add
+  Products / Product Media screens, replacing the "paste image URLs" text
+  field flagged as a known gap since the 2026-07-21 bootstrap log entry.
+- New shared pieces (`lib/shared/widgets/`, reused by both screens so they
+  don't diverge again):
+  - `product_image_manager.dart` — `ProductImageManager extends ChangeNotifier`
+    owns the working image list (existing DB-backed URLs + newly picked local
+    files), independent of any one screen. Validates (type: jpg/jpeg/png/webp,
+    size: 5 MB) and compresses (via `package:image`, downscale to a 1600px
+    max dimension + re-encode JPEG q85) **at pick time**, so a bad file
+    surfaces immediately rather than at save. The actual Supabase Storage
+    upload happens lazily, only when `uploadPendingAndGetOrderedUrls()` is
+    called at save time — nothing hits Storage for a product the admin
+    abandons without saving. Per-file retry on failure; `uploadPending...`
+    throws if any entry is still failed, so the caller doesn't save a product
+    with missing images.
+  - `product_image_upload_field.dart` — the actual widget: `desktop_drop`'s
+    `DropTarget` for drag-and-drop (works on web) + `image_picker`'s
+    `pickMultiImage` for click-to-browse, a `Wrap` of thumbnail tiles with
+    `Draggable`/`DragTarget` per tile for drag-to-reorder, a "Primary" badge
+    on index 0, per-tile delete button, and an uploading/failed-with-retry
+    overlay per tile.
+  - `core/utils/image_processing.dart` — the pure validation/compression
+    functions, kept separate from the widget so they're easy to unit-test
+    later if it comes to that.
+- `AdminProductActions.replaceImages` now also cleans up Storage: before
+  swapping `product_images` rows, it diffs old vs. new URL sets and deletes
+  the now-orphaned objects from the `product-images` bucket (best-effort —
+  a delete failure there doesn't block the product save). Previously this
+  method only ever touched the DB rows and silently leaked storage objects
+  when images were replaced or removed.
+- **Schema gap found and fixed**: `product_images` had no `created_at`
+  column, but the DB spec (and this feature) calls for one. Added
+  `supabase/migrations/0004_product_images_created_at.sql` — **not yet
+  applied to the live project**; per the user's standing instruction, DB
+  changes are handed to them as SQL to run manually rather than executed
+  directly:
+  ```sql
+  alter table product_images
+    add column if not exists created_at timestamptz not null default now();
+  ```
+- Progress indication is per-tile (spinner while uploading, error+retry
+  overlay on failure) rather than a byte-accurate percentage — supabase_flutter's
+  `uploadBinary` doesn't expose upload-progress callbacks in its public API,
+  so a fabricated percentage wasn't worth faking.
+- New deps: `image_picker`, `desktop_drop`, `image`, `uuid`, `cross_file`
+  (the last promoted from transitive since it's referenced directly for the
+  `XFile` type shared between `image_picker` and `desktop_drop`).
+- `flutter analyze`: 0 errors (same one pre-existing `anonKey` info).
+  `flutter build web`: succeeds.
+- **Not yet verified against a live upload** — headless Chromium (this
+  environment's only browser automation path) can't drive Flutter Web's
+  canvas-rendered form fields or native OS file-picker dialogs, so this needs
+  a real hands-on pass: open Add Products, drag a few images in, reorder,
+  delete one, save, then confirm the rows in `product_images` and the
+  objects in the `product-images` bucket both look right.
+
 ### 2026-07-21 — Real anon key added; fixed a router bug that hung the app on `/splash` forever
 
 - User supplied the real `SUPABASE_ANON_KEY` for project `qbcdavvwlsisxcvaujfp` —

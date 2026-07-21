@@ -8,6 +8,13 @@ import '../../../../../shared/repositories/catalog_repository.dart';
 import '../../../../../core/config/supabase_config.dart';
 import '../../../../../core/constants/supabase_tables.dart';
 
+String? _storagePathFromPublicUrl(String url) {
+  const marker = '/object/public/${SupabaseBuckets.productImages}/';
+  final i = url.indexOf(marker);
+  if (i == -1) return null;
+  return url.substring(i + marker.length);
+}
+
 final adminProductsSearchProvider = StateProvider<String>((ref) => '');
 
 final adminProductsProvider = FutureProvider<List<Product>>((ref) {
@@ -46,10 +53,25 @@ class AdminProductActions {
   }
 
   static Future<void> replaceImages(String productId, List<String> urls) async {
+    final oldRows = await SupabaseConfig.client.from(SupabaseTables.productImages).select('image_url').eq('product_id', productId);
+    final oldUrls = oldRows.map((r) => r['image_url'] as String).toSet();
+    final orphaned = oldUrls.difference(urls.toSet());
+    final orphanedPaths = orphaned.map(_storagePathFromPublicUrl).whereType<String>().toList();
+
     await SupabaseConfig.client.from(SupabaseTables.productImages).delete().eq('product_id', productId);
-    if (urls.isEmpty) return;
-    await SupabaseConfig.client.from(SupabaseTables.productImages).insert([
-      for (var i = 0; i < urls.length; i++) {'product_id': productId, 'image_url': urls[i], 'sort_order': i, 'is_primary': i == 0},
-    ]);
+    if (urls.isNotEmpty) {
+      await SupabaseConfig.client.from(SupabaseTables.productImages).insert([
+        for (var i = 0; i < urls.length; i++) {'product_id': productId, 'image_url': urls[i], 'sort_order': i, 'is_primary': i == 0},
+      ]);
+    }
+
+    if (orphanedPaths.isNotEmpty) {
+      try {
+        await SupabaseConfig.client.storage.from(SupabaseBuckets.productImages).remove(orphanedPaths);
+      } catch (_) {
+        // Best-effort: an orphaned Storage object is preferable to blocking
+        // the product save on a cleanup failure.
+      }
+    }
   }
 }

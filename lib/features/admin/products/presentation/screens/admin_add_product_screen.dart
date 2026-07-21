@@ -6,6 +6,8 @@ import '../../../../../core/widgets/app_text_field.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/widgets/state_views.dart';
 import '../../../../../shared/models/product.dart';
+import '../../../../../shared/widgets/product_image_manager.dart';
+import '../../../../../shared/widgets/product_image_upload_field.dart';
 import '../providers/admin_products_providers.dart';
 
 class AdminAddProductScreen extends ConsumerStatefulWidget {
@@ -24,7 +26,7 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
   final _price = TextEditingController();
   final _comparePrice = TextEditingController();
   final _sku = TextEditingController();
-  final _imageUrls = TextEditingController();
+  final _imageManager = ProductImageManager();
   String? _categoryId;
   String? _brandId;
   bool _isFeatured = false;
@@ -41,7 +43,7 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
     _price.text = product.price.toString();
     _comparePrice.text = product.compareAtPrice?.toString() ?? '';
     _sku.text = product.sku ?? '';
-    _imageUrls.text = product.images.map((i) => i.imageUrl).join(', ');
+    _imageManager.loadExisting(product.images.map((i) => i.imageUrl).toList());
     _categoryId = product.categoryId;
     _brandId = product.brandId;
     _isFeatured = product.isFeatured;
@@ -49,9 +51,10 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
 
   @override
   void dispose() {
-    for (final c in [_name, _description, _price, _comparePrice, _sku, _imageUrls]) {
+    for (final c in [_name, _description, _price, _comparePrice, _sku]) {
       c.dispose();
     }
+    _imageManager.dispose();
     super.dispose();
   }
 
@@ -59,6 +62,8 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
+      final urls = await _imageManager.uploadPendingAndGetOrderedUrls();
+
       final slug = _name.text.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
       final id = await AdminProductActions.upsert({
         'name': _name.text.trim(),
@@ -72,13 +77,16 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
         'is_featured': _isFeatured,
       }, id: widget.productId);
 
-      final urls = _imageUrls.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
       await AdminProductActions.replaceImages(id, urls);
 
       ref.invalidate(adminProductsProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_isEdit ? 'Product updated' : 'Product created')));
         context.go('/admin/products');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -135,7 +143,7 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
                 error: (e, _) => const Text('Could not load brands'),
               ),
               const SizedBox(height: 14),
-              AppTextField(controller: _imageUrls, hint: 'https://…, https://…', label: 'Image URLs (comma-separated)'),
+              ProductImageUploadField(manager: _imageManager),
               const SizedBox(height: 10),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,

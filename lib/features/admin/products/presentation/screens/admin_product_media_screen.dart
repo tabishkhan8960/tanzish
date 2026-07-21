@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/widgets/app_text_field.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/widgets/state_views.dart';
 import '../../../../../shared/models/product.dart';
+import '../../../../../shared/widgets/product_image_manager.dart';
+import '../../../../../shared/widgets/product_image_upload_field.dart';
 import '../providers/admin_products_providers.dart';
 
 class AdminProductMediaScreen extends ConsumerWidget {
@@ -58,22 +59,26 @@ class _ProductMediaDialog extends ConsumerStatefulWidget {
 }
 
 class _ProductMediaDialogState extends ConsumerState<_ProductMediaDialog> {
-  late final _controller = TextEditingController(text: widget.product.images.map((i) => i.imageUrl).join(', '));
+  late final _imageManager = ProductImageManager()..loadExisting(widget.product.images.map((i) => i.imageUrl).toList());
   bool _saving = false;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _imageManager.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
     setState(() => _saving = true);
     try {
-      final urls = _controller.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+      final urls = await _imageManager.uploadPendingAndGetOrderedUrls();
       await AdminProductActions.replaceImages(widget.product.id, urls);
       ref.invalidate(adminProductsProvider);
       if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -84,29 +89,9 @@ class _ProductMediaDialogState extends ConsumerState<_ProductMediaDialog> {
     return AlertDialog(
       title: Text(widget.product.name),
       content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Image URLs, comma-separated. First one is the primary image.', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-            const SizedBox(height: 10),
-            AppTextField(controller: _controller, hint: 'https://…, https://…'),
-            if (widget.product.images.isNotEmpty) ...[
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final img in widget.product.images)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(imageUrl: img.imageUrl, width: 56, height: 56, fit: BoxFit.cover),
-                    ),
-                ],
-              ),
-            ],
-          ],
+        width: 480,
+        child: SingleChildScrollView(
+          child: ProductImageUploadField(manager: _imageManager),
         ),
       ),
       actions: [
