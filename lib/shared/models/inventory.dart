@@ -13,6 +13,12 @@ abstract class Inventory with _$Inventory {
     @Default({}) Map<String, dynamic> variantAttributes,
     @Default(0) int quantity,
     @Default(5) int lowStockThreshold,
+    num? price,
+    num? compareAtPrice,
+    String? sku,
+    String? barcode,
+    num? weightGrams,
+    @Default([]) List<String> imageUrls,
     required DateTime updatedAt,
     // Embedded
     Product? product,

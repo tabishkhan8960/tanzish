@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Inventory {
 
- String get id; String get productId; Map<String, dynamic> get variantAttributes; int get quantity; int get lowStockThreshold; DateTime get updatedAt; Product? get product;
+ String get id; String get productId; Map<String, dynamic> get variantAttributes; int get quantity; int get lowStockThreshold; num? get price; num? get compareAtPrice; String? get sku; String? get barcode; num? get weightGrams; List<String> get imageUrls; DateTime get updatedAt; Product? get product;
 /// Create a copy of Inventory
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $InventoryCopyWith<Inventory> get copyWith => _$InventoryCopyWithImpl<Inventory>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Inventory&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&const DeepCollectionEquality().equals(other.variantAttributes, variantAttributes)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.lowStockThreshold, lowStockThreshold) || other.lowStockThreshold == lowStockThreshold)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.product, product) || other.product == product));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Inventory&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&const DeepCollectionEquality().equals(other.variantAttributes, variantAttributes)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.lowStockThreshold, lowStockThreshold) || other.lowStockThreshold == lowStockThreshold)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.barcode, barcode) || other.barcode == barcode)&&(identical(other.weightGrams, weightGrams) || other.weightGrams == weightGrams)&&const DeepCollectionEquality().equals(other.imageUrls, imageUrls)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.product, product) || other.product == product));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,const DeepCollectionEquality().hash(variantAttributes),quantity,lowStockThreshold,updatedAt,product);
+int get hashCode => Object.hash(runtimeType,id,productId,const DeepCollectionEquality().hash(variantAttributes),quantity,lowStockThreshold,price,compareAtPrice,sku,barcode,weightGrams,const DeepCollectionEquality().hash(imageUrls),updatedAt,product);
 
 @override
 String toString() {
-  return 'Inventory(id: $id, productId: $productId, variantAttributes: $variantAttributes, quantity: $quantity, lowStockThreshold: $lowStockThreshold, updatedAt: $updatedAt, product: $product)';
+  return 'Inventory(id: $id, productId: $productId, variantAttributes: $variantAttributes, quantity: $quantity, lowStockThreshold: $lowStockThreshold, price: $price, compareAtPrice: $compareAtPrice, sku: $sku, barcode: $barcode, weightGrams: $weightGrams, imageUrls: $imageUrls, updatedAt: $updatedAt, product: $product)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $InventoryCopyWith<$Res>  {
   factory $InventoryCopyWith(Inventory value, $Res Function(Inventory) _then) = _$InventoryCopyWithImpl;
 @useResult
 $Res call({
- String id, String productId, Map<String, dynamic> variantAttributes, int quantity, int lowStockThreshold, DateTime updatedAt, Product? product
+ String id, String productId, Map<String, dynamic> variantAttributes, int quantity, int lowStockThreshold, num? price, num? compareAtPrice, String? sku, String? barcode, num? weightGrams, List<String> imageUrls, DateTime updatedAt, Product? product
 });
 
 
@@ -65,14 +65,20 @@ class _$InventoryCopyWithImpl<$Res>
 
 /// Create a copy of Inventory
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? variantAttributes = null,Object? quantity = null,Object? lowStockThreshold = null,Object? updatedAt = null,Object? product = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? variantAttributes = null,Object? quantity = null,Object? lowStockThreshold = null,Object? price = freezed,Object? compareAtPrice = freezed,Object? sku = freezed,Object? barcode = freezed,Object? weightGrams = freezed,Object? imageUrls = null,Object? updatedAt = null,Object? product = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,variantAttributes: null == variantAttributes ? _self.variantAttributes : variantAttributes // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,lowStockThreshold: null == lowStockThreshold ? _self.lowStockThreshold : lowStockThreshold // ignore: cast_nullable_to_non_nullable
-as int,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as int,price: freezed == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as num?,compareAtPrice: freezed == compareAtPrice ? _self.compareAtPrice : compareAtPrice // ignore: cast_nullable_to_non_nullable
+as num?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non_nullable
+as String?,barcode: freezed == barcode ? _self.barcode : barcode // ignore: cast_nullable_to_non_nullable
+as String?,weightGrams: freezed == weightGrams ? _self.weightGrams : weightGrams // ignore: cast_nullable_to_non_nullable
+as num?,imageUrls: null == imageUrls ? _self.imageUrls : imageUrls // ignore: cast_nullable_to_non_nullable
+as List<String>,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,product: freezed == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as Product?,
   ));
@@ -171,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  DateTime updatedAt,  Product? product)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  num? price,  num? compareAtPrice,  String? sku,  String? barcode,  num? weightGrams,  List<String> imageUrls,  DateTime updatedAt,  Product? product)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Inventory() when $default != null:
-return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.updatedAt,_that.product);case _:
+return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.price,_that.compareAtPrice,_that.sku,_that.barcode,_that.weightGrams,_that.imageUrls,_that.updatedAt,_that.product);case _:
   return orElse();
 
 }
@@ -192,10 +198,10 @@ return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  DateTime updatedAt,  Product? product)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  num? price,  num? compareAtPrice,  String? sku,  String? barcode,  num? weightGrams,  List<String> imageUrls,  DateTime updatedAt,  Product? product)  $default,) {final _that = this;
 switch (_that) {
 case _Inventory():
-return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.updatedAt,_that.product);case _:
+return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.price,_that.compareAtPrice,_that.sku,_that.barcode,_that.weightGrams,_that.imageUrls,_that.updatedAt,_that.product);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +218,10 @@ return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  DateTime updatedAt,  Product? product)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String productId,  Map<String, dynamic> variantAttributes,  int quantity,  int lowStockThreshold,  num? price,  num? compareAtPrice,  String? sku,  String? barcode,  num? weightGrams,  List<String> imageUrls,  DateTime updatedAt,  Product? product)?  $default,) {final _that = this;
 switch (_that) {
 case _Inventory() when $default != null:
-return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.updatedAt,_that.product);case _:
+return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,_that.lowStockThreshold,_that.price,_that.compareAtPrice,_that.sku,_that.barcode,_that.weightGrams,_that.imageUrls,_that.updatedAt,_that.product);case _:
   return null;
 
 }
@@ -227,7 +233,7 @@ return $default(_that.id,_that.productId,_that.variantAttributes,_that.quantity,
 @JsonSerializable()
 
 class _Inventory implements Inventory {
-  const _Inventory({required this.id, required this.productId, final  Map<String, dynamic> variantAttributes = const {}, this.quantity = 0, this.lowStockThreshold = 5, required this.updatedAt, this.product}): _variantAttributes = variantAttributes;
+  const _Inventory({required this.id, required this.productId, final  Map<String, dynamic> variantAttributes = const {}, this.quantity = 0, this.lowStockThreshold = 5, this.price, this.compareAtPrice, this.sku, this.barcode, this.weightGrams, final  List<String> imageUrls = const [], required this.updatedAt, this.product}): _variantAttributes = variantAttributes,_imageUrls = imageUrls;
   factory _Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
 @override final  String id;
@@ -241,6 +247,18 @@ class _Inventory implements Inventory {
 
 @override@JsonKey() final  int quantity;
 @override@JsonKey() final  int lowStockThreshold;
+@override final  num? price;
+@override final  num? compareAtPrice;
+@override final  String? sku;
+@override final  String? barcode;
+@override final  num? weightGrams;
+ final  List<String> _imageUrls;
+@override@JsonKey() List<String> get imageUrls {
+  if (_imageUrls is EqualUnmodifiableListView) return _imageUrls;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_imageUrls);
+}
+
 @override final  DateTime updatedAt;
 @override final  Product? product;
 
@@ -257,16 +275,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Inventory&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&const DeepCollectionEquality().equals(other._variantAttributes, _variantAttributes)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.lowStockThreshold, lowStockThreshold) || other.lowStockThreshold == lowStockThreshold)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.product, product) || other.product == product));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Inventory&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&const DeepCollectionEquality().equals(other._variantAttributes, _variantAttributes)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.lowStockThreshold, lowStockThreshold) || other.lowStockThreshold == lowStockThreshold)&&(identical(other.price, price) || other.price == price)&&(identical(other.compareAtPrice, compareAtPrice) || other.compareAtPrice == compareAtPrice)&&(identical(other.sku, sku) || other.sku == sku)&&(identical(other.barcode, barcode) || other.barcode == barcode)&&(identical(other.weightGrams, weightGrams) || other.weightGrams == weightGrams)&&const DeepCollectionEquality().equals(other._imageUrls, _imageUrls)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.product, product) || other.product == product));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,const DeepCollectionEquality().hash(_variantAttributes),quantity,lowStockThreshold,updatedAt,product);
+int get hashCode => Object.hash(runtimeType,id,productId,const DeepCollectionEquality().hash(_variantAttributes),quantity,lowStockThreshold,price,compareAtPrice,sku,barcode,weightGrams,const DeepCollectionEquality().hash(_imageUrls),updatedAt,product);
 
 @override
 String toString() {
-  return 'Inventory(id: $id, productId: $productId, variantAttributes: $variantAttributes, quantity: $quantity, lowStockThreshold: $lowStockThreshold, updatedAt: $updatedAt, product: $product)';
+  return 'Inventory(id: $id, productId: $productId, variantAttributes: $variantAttributes, quantity: $quantity, lowStockThreshold: $lowStockThreshold, price: $price, compareAtPrice: $compareAtPrice, sku: $sku, barcode: $barcode, weightGrams: $weightGrams, imageUrls: $imageUrls, updatedAt: $updatedAt, product: $product)';
 }
 
 
@@ -277,7 +295,7 @@ abstract mixin class _$InventoryCopyWith<$Res> implements $InventoryCopyWith<$Re
   factory _$InventoryCopyWith(_Inventory value, $Res Function(_Inventory) _then) = __$InventoryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String productId, Map<String, dynamic> variantAttributes, int quantity, int lowStockThreshold, DateTime updatedAt, Product? product
+ String id, String productId, Map<String, dynamic> variantAttributes, int quantity, int lowStockThreshold, num? price, num? compareAtPrice, String? sku, String? barcode, num? weightGrams, List<String> imageUrls, DateTime updatedAt, Product? product
 });
 
 
@@ -294,14 +312,20 @@ class __$InventoryCopyWithImpl<$Res>
 
 /// Create a copy of Inventory
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? variantAttributes = null,Object? quantity = null,Object? lowStockThreshold = null,Object? updatedAt = null,Object? product = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? variantAttributes = null,Object? quantity = null,Object? lowStockThreshold = null,Object? price = freezed,Object? compareAtPrice = freezed,Object? sku = freezed,Object? barcode = freezed,Object? weightGrams = freezed,Object? imageUrls = null,Object? updatedAt = null,Object? product = freezed,}) {
   return _then(_Inventory(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,variantAttributes: null == variantAttributes ? _self._variantAttributes : variantAttributes // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
 as int,lowStockThreshold: null == lowStockThreshold ? _self.lowStockThreshold : lowStockThreshold // ignore: cast_nullable_to_non_nullable
-as int,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as int,price: freezed == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
+as num?,compareAtPrice: freezed == compareAtPrice ? _self.compareAtPrice : compareAtPrice // ignore: cast_nullable_to_non_nullable
+as num?,sku: freezed == sku ? _self.sku : sku // ignore: cast_nullable_to_non_nullable
+as String?,barcode: freezed == barcode ? _self.barcode : barcode // ignore: cast_nullable_to_non_nullable
+as String?,weightGrams: freezed == weightGrams ? _self.weightGrams : weightGrams // ignore: cast_nullable_to_non_nullable
+as num?,imageUrls: null == imageUrls ? _self._imageUrls : imageUrls // ignore: cast_nullable_to_non_nullable
+as List<String>,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,product: freezed == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as Product?,
   ));

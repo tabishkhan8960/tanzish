@@ -14,7 +14,7 @@ final adminOrdersProvider = StreamProvider<List<Order>>((ref) async* {
   
   yield await repo.fetchAllOrders(status: status);
   
-  final stream = supabase.from('orders').stream(primaryKey: ['id']);
+  final stream = SupabaseConfig.client.from('orders').stream(primaryKey: ['id']);
   await for (final _ in stream) {
     yield await repo.fetchAllOrders(status: status);
   }

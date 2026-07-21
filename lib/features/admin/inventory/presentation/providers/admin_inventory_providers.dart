@@ -3,7 +3,7 @@ import '../../../../../core/config/supabase_config.dart';
 import '../../../../../shared/models/inventory.dart';
 
 final adminInventoryProvider = FutureProvider.autoDispose<List<Inventory>>((ref) async {
-  final res = await supabase
+  final res = await SupabaseConfig.client
       .from('inventory')
       .select('*, product:products(name, sku, image_url)')
       .order('updated_at', ascending: false);
@@ -12,7 +12,7 @@ final adminInventoryProvider = FutureProvider.autoDispose<List<Inventory>>((ref)
 
 class AdminInventoryActions {
   static Future<void> upsert(String productId, Map<String, dynamic> variantAttributes, int quantity, int lowStockThreshold) async {
-    await supabase.from('inventory').upsert({
+    await SupabaseConfig.client.from('inventory').upsert({
       'product_id': productId,
       'variant_attributes': variantAttributes,
       'quantity': quantity,

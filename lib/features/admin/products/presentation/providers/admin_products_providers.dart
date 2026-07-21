@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../../../shared/models/brand.dart';
 import '../../../../../shared/models/category.dart';
+import '../../../../../shared/models/inventory.dart';
 import '../../../../../shared/models/product.dart';
 import '../../../../../shared/repositories/catalog_repository.dart';
 import '../../../../../core/config/supabase_config.dart';
@@ -42,6 +43,28 @@ class AdminProductActions {
     }
     await SupabaseConfig.client.from(SupabaseTables.products).update(data).eq('id', id);
     return id;
+  }
+
+  static Future<void> upsertVariants(String productId, List<Inventory> variants) async {
+    // We should delete old variants that are not in the new list, or just upsert and rely on unique constraints.
+    // For simplicity, let's delete all existing variants for this product and re-insert them.
+    await SupabaseConfig.client.from(SupabaseTables.inventory).delete().eq('product_id', productId);
+    if (variants.isNotEmpty) {
+      final rows = variants.map((v) => {
+        'product_id': productId,
+        'variant_attributes': v.variantAttributes,
+        'quantity': v.quantity,
+        'low_stock_threshold': v.lowStockThreshold,
+        'price': v.price,
+        'compare_at_price': v.compareAtPrice,
+        'sku': v.sku,
+        'barcode': v.barcode,
+        'weight_grams': v.weightGrams,
+        'image_urls': v.imageUrls,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).toList();
+      await SupabaseConfig.client.from(SupabaseTables.inventory).insert(rows);
+    }
   }
 
   static Future<void> setActive(String id, bool isActive) async {
