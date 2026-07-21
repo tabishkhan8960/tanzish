@@ -9,29 +9,27 @@ part of 'review.dart';
 _Review _$ReviewFromJson(Map<String, dynamic> json) => _Review(
   id: json['id'] as String,
   productId: json['product_id'] as String,
-  userId: json['user_id'] as String,
-  orderItemId: json['order_item_id'] as String?,
+  customerName: json['customer_name'] as String,
   rating: (json['rating'] as num).toInt(),
-  comment: json['comment'] as String?,
-  images:
-      (json['images'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-      const [],
-  isApproved: json['is_approved'] as bool? ?? true,
+  reviewTitle: json['review_title'] as String?,
+  reviewDescription: json['review_description'] as String?,
+  customerAvatar: json['customer_avatar'] as String?,
+  verifiedPurchase: json['verified_purchase'] as bool? ?? false,
+  status: json['status'] as String? ?? 'Published',
   createdAt: DateTime.parse(json['created_at'] as String),
-  profile: json['profile'] == null
-      ? null
-      : Profile.fromJson(json['profile'] as Map<String, dynamic>),
+  updatedAt: DateTime.parse(json['updated_at'] as String),
 );
 
 Map<String, dynamic> _$ReviewToJson(_Review instance) => <String, dynamic>{
   'id': instance.id,
   'product_id': instance.productId,
-  'user_id': instance.userId,
-  'order_item_id': instance.orderItemId,
+  'customer_name': instance.customerName,
   'rating': instance.rating,
-  'comment': instance.comment,
-  'images': instance.images,
-  'is_approved': instance.isApproved,
+  'review_title': instance.reviewTitle,
+  'review_description': instance.reviewDescription,
+  'customer_avatar': instance.customerAvatar,
+  'verified_purchase': instance.verifiedPurchase,
+  'status': instance.status,
   'created_at': instance.createdAt.toIso8601String(),
-  'profile': instance.profile,
+  'updated_at': instance.updatedAt.toIso8601String(),
 };

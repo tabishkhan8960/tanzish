@@ -105,14 +105,14 @@ class ProductCard extends StatelessWidget {
                       ...List.generate(5, (index) {
                         return Icon(
                           index < product.ratingAvg.round() ? Icons.star_rounded : Icons.star_border_rounded,
-                          color: index < product.ratingAvg.round() ? Colors.amber : AppColors.textSecondary.withOpacity(0.5),
+                          color: Colors.amber,
                           size: 14,
                         );
                       }),
                       const SizedBox(width: 4),
                       Text(
-                        '${product.ratingCount}',
-                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                        '${product.ratingAvg.toStringAsFixed(1)} (${product.ratingCount})',
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),

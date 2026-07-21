@@ -17,6 +17,7 @@ import '../../features/customer/orders/presentation/screens/order_details_screen
 import '../../features/customer/orders/presentation/screens/orders_screen.dart';
 import '../../features/customer/presentation/customer_shell.dart';
 import '../../features/customer/product/presentation/screens/product_details_screen.dart';
+import '../../features/customer/reviews/presentation/screens/product_reviews_screen.dart';
 import '../../features/customer/profile/presentation/screens/addresses_screen.dart';
 import '../../features/customer/profile/presentation/screens/profile_screen.dart';
 import '../../features/customer/search/presentation/screens/search_screen.dart';
@@ -68,6 +69,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // Pushed (full-screen, outside the bottom-nav shell)
       GoRoute(path: '/product/:id', builder: (context, state) => ProductDetailsScreen(productId: state.pathParameters['id']!)),
+      GoRoute(path: '/product/:id/reviews', builder: (context, state) => ProductReviewsScreen(productId: state.pathParameters['id']!)),
       GoRoute(path: '/checkout', builder: (context, state) => const CheckoutScreen()),
       GoRoute(path: '/checkout/success', builder: (context, state) => const OrderSuccessScreen()),
       GoRoute(path: '/orders', builder: (context, state) => const OrdersScreen()),

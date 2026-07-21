@@ -12,6 +12,8 @@ import '../../../../../shared/widgets/product_card.dart';
 import '../../../cart/presentation/providers/cart_providers.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../../wishlist/presentation/providers/wishlist_providers.dart';
+import '../../reviews/presentation/providers/reviews_providers.dart';
+import '../../../../../shared/widgets/review_card.dart';
 
 class ProductDetailsScreen extends ConsumerStatefulWidget {
   const ProductDetailsScreen({super.key, required this.productId});
@@ -203,6 +205,54 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> {
                   const SizedBox(height: 8),
                   Text(product.description!, style: const TextStyle(color: AppColors.textSecondary, height: 1.5)),
                 ],
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text('Customer Reviews', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(product.ratingAvg.toStringAsFixed(1), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 8),
+                    Row(
+                      children: List.generate(5, (index) => Icon(
+                        index < product.ratingAvg.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                        color: Colors.amber,
+                        size: 20,
+                      )),
+                    ),
+                    const SizedBox(width: 8),
+                    Text('(${product.ratingCount} Reviews)', style: const TextStyle(color: AppColors.textSecondary)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                ref.watch(productReviewsProvider(product.id)).when(
+                  data: (reviews) {
+                    if (reviews.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text('No reviews yet. Be the first to review this product.', style: TextStyle(color: AppColors.textSecondary)),
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...reviews.take(3).map((r) => ReviewCard(review: r)),
+                        if (reviews.length > 3)
+                          Center(
+                            child: OutlinedButton(
+                              onPressed: () => context.push('/product/${product.id}/reviews'),
+                              child: const Text('View All Reviews'),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                  loading: () => const LoadingView(),
+                  error: (e, _) => const ErrorView(message: 'Could not load reviews'),
+                ),
                 const SizedBox(height: 24),
                 similar.when(
                   data: (list) => list.isEmpty
