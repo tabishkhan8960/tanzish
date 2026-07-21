@@ -64,6 +64,50 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-22 (cont'd) — Image upload button/drag-drop did nothing: stale web plugin registrant, not a code bug
+
+- User reported the whole upload flow silently doing nothing: Browse button
+  no-op, drag-and-drop no-op, no previews, no console errors.
+- Root cause had nothing to do with the widget/controller code from the
+  entry above — it was a **stale generated web plugin registrant**. Flutter
+  web plugin wiring lives in an auto-generated
+  `.dart_tool/flutter_build/<hash>/web_plugin_registrant.dart`; the one on
+  disk only registered `app_links_web`, `shared_preferences_web`, and
+  `url_launcher_web` — **`image_picker_for_web` and `desktop_drop`'s web
+  implementation were never registered at all**, even though both resolved
+  fine in `pubspec.lock` and `flutter analyze`/`flutter build web` both
+  passed clean. Confirmed by grepping the compiled `build/web/main.dart.js`:
+  `desktop_drop` appeared once (barely referenced) and
+  `flt-image-picker-inputs` (a literal from `image_picker_for_web`'s DOM
+  injection code) didn't appear **at all** — dart2js had tree-shaken the
+  entire web implementation away because nothing reachable ever registered
+  it as the platform implementation.
+  - Confirmed the stale registrant predated this feature (referenced
+    `app_links_web`/`url_launcher_web`, neither of which is even in this
+    app's `pubspec.yaml` — leftover from an unrelated cached build).
+  - Why `flutter analyze` and even `flutter build web` succeeding didn't
+    catch this: plugin registration is a codegen step keyed off a build
+    hash, decoupled from the Dart analyzer and from whether the build
+    *succeeds* — a stale/wrong registrant still compiles fine, it just
+    silently omits the plugin, so every call into `image_picker`/
+    `desktop_drop` on web hits a no-op/absent platform implementation
+    instead of throwing.
+  - Fix: `flutter clean` (wipes `.dart_tool/`, forcing full regeneration) →
+    `flutter pub get` → `flutter build web`. The regenerated registrant
+    correctly includes `DesktopDropWeb.registerWith(registrar)` and
+    `ImagePickerPlugin.registerWith(registrar)`, and `main.dart.js` now
+    contains the `flt-image-picker-inputs` string and 4 `desktop_drop`
+    references.
+  - **Lesson for next time a newly-added web plugin silently no-ops** (button
+    does nothing, no error): check
+    `.dart_tool/flutter_build/*/web_plugin_registrant.dart` for the missing
+    plugin before assuming it's an application-code bug — `flutter clean`
+    first, cheaply, before spending time debugging widget code that's
+    probably fine.
+- Not yet re-verified against a live click/drop in a real browser from this
+  session (same headless-automation limits as the entry below) — asked the
+  user to retest since they have real mouse/file-dialog interaction.
+
 ### 2026-07-22 — Real product image upload, replacing the comma-separated-URL placeholder
 
 - User asked for a Shopify/WooCommerce-style upload experience on the Add
