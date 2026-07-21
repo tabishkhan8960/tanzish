@@ -16,7 +16,6 @@ import '../../features/admin/products/presentation/screens/admin_product_media_s
 import '../../features/admin/reviews/presentation/screens/admin_reviews_screen.dart';
 import '../../features/admin/roles/presentation/screens/admin_roles_screen.dart';
 import '../../features/admin/transactions/presentation/screens/admin_transactions_screen.dart';
-import '../../features/auth/data/auth_repository.dart';
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/not_authorized_screen.dart';
@@ -28,9 +27,15 @@ import 'go_router_refresh_stream.dart';
 const _authPaths = ['/sign-in', '/forgot-password'];
 
 final goRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = GoRouterRefreshNotifier();
+  // Drives refreshListenable from the same provider `redirect` reads below,
+  // instead of a second independent subscription to the raw auth stream —
+  // see the note in go_router_refresh_stream.dart for why that raced.
+  ref.listen(authStateChangesProvider, (_, _) => refreshNotifier.notify());
+
   return GoRouter(
     initialLocation: '/splash',
-    refreshListenable: GoRouterRefreshStream(ref.watch(authRepositoryProvider).authStateChanges),
+    refreshListenable: refreshNotifier,
     redirect: (context, state) async {
       final location = state.matchedLocation;
       final isAuthPath = _authPaths.contains(location);

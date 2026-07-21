@@ -64,6 +64,54 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-21 — Real anon key added; fixed a router bug that hung the app on `/splash` forever
+
+- User supplied the real `SUPABASE_ANON_KEY` for project `qbcdavvwlsisxcvaujfp` —
+  filled into `.env` here (and into `customer/.env` too, same project/key).
+  `flutter build web` + a headless-Chromium smoke test (Playwright, since
+  neither `chromium-cli` nor a real display was available in this
+  environment) confirmed the project is reachable and the key is accepted
+  (`GET /auth/v1/settings` → 200).
+- That smoke test surfaced a **real, previously-unexercised bug**: with a
+  syntactically valid key, the app got past the placeholder-key crash from
+  the previous log entry but then hung forever on the splash screen — never
+  reaching sign-in. Root cause was a race in the router, not anything to do
+  with the branch split above:
+  - `redirect` gated on `ref.read(authStateChangesProvider).isLoading`
+    (Riverpod's own subscription to the Supabase auth stream), while
+    `GoRouterRefreshStream` held a **second, independent** subscription to
+    the exact same stream purely to call `notifyListeners()`.
+  - Confirmed via temporary debug prints: the auth stream does emit exactly
+    once at startup (`AuthChangeEvent.initialSession`, since there's no
+    stored session), and both subscriptions do receive it — but
+    `GoRouterRefreshStream`'s raw `.listen()` callback fires (and triggers a
+    `redirect` re-run) one microtask *before* Riverpod's own internal
+    listener updates `authStateChangesProvider`'s state. So the re-run of
+    `redirect` still read stale `AsyncLoading`, returned `/splash` again, and
+    since the underlying stream never emits a second time (no further
+    sign-in/out happens), nothing ever triggered a third `redirect` — the
+    app was stuck permanently, not just slow.
+  - Fix: replaced the stream-based `GoRouterRefreshStream` with a plain
+    `GoRouterRefreshNotifier extends ChangeNotifier`, driven via
+    `ref.listen(authStateChangesProvider, (_, _) => refreshNotifier.notify())`
+    inside `goRouterProvider` itself — so refreshListenable and the value
+    `redirect` reads are now the *same* Riverpod subscription, eliminating
+    the race by construction. Applied identically on `customer` (same
+    pattern, same latent bug, just never reached there either before today).
+  - `go_router_refresh_stream.dart` kept its filename but no longer holds a
+    `Stream`-taking class — see the doc comment on `GoRouterRefreshNotifier`
+    for the full "why," in case anyone's tempted to revert to the stream
+    version, which looks simpler but is broken.
+- Verified after the fix: fresh headless run reaches the sign-in screen
+  (`Welcome Back!`) reliably. `flutter analyze`: 0 errors (same one
+  pre-existing `anonKey` deprecation info).
+- **Not done yet, next blocker for an actual login round-trip**: the SQL
+  migrations in `supabase/migrations/` still haven't been applied to the
+  live project (no `supabase` CLI installed in this environment, and no
+  dashboard/service-role access) — signing in will fail past the auth step
+  until `profiles`/`products`/etc. exist. No admin-role account exists yet
+  either.
+
 ### 2026-07-21 — Branch split: customer code removed from `admin`
 
 - Mirror of the same cleanup already done on `main` (see that branch's log):
