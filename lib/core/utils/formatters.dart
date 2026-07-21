@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-final _currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+final _currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 0);
 final _dateFormat = DateFormat('d MMM yyyy');
 
 String formatCurrency(num value) => _currencyFormat.format(value);

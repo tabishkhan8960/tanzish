@@ -39,20 +39,45 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> {
       bottomNavigationBar: productAsync.maybeWhen(
         data: (product) => SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-            child: PrimaryButton(
-              label: 'Add to Cart',
-              icon: Icons.shopping_cart_outlined,
-              loading: _addingToCart,
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                setState(() => _addingToCart = true);
-                await ref.read(cartControllerProvider.notifier).add(product.id);
-                if (mounted) {
-                  setState(() => _addingToCart = false);
-                  messenger.showSnackBar(const SnackBar(content: Text('Added to cart')));
-                }
-              },
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      setState(() => _addingToCart = true);
+                      await ref.read(cartControllerProvider.notifier).add(product.id);
+                      if (mounted) {
+                        setState(() => _addingToCart = false);
+                        messenger.showSnackBar(const SnackBar(content: Text('Added to cart')));
+                      }
+                    },
+                    icon: _addingToCart ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.shopping_cart_outlined),
+                    label: const Text('Go to cart', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade500,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: () {},
+                    icon: const Icon(Icons.touch_app),
+                    label: const Text('Buy Now', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -114,6 +139,33 @@ class _ProductDetailsScreenState extends ConsumerState<ProductDetailsScreen> {
                       ),
                     ),
                   ),
+                if (product.attributes['sizes'] != null) ...[
+                  const SizedBox(height: 20),
+                  const Text('Size', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: (product.attributes['sizes'] as List).map((size) {
+                      final isSelected = size == (product.attributes['sizes'] as List).first;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFFD8397) : Colors.white,
+                          border: Border.all(color: isSelected ? const Color(0xFFFD8397) : Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          size.toString(),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
                 if (product.brand != null)
                   Text(product.brand!.name.toUpperCase(), style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, letterSpacing: 1)),
                 const SizedBox(height: 4),

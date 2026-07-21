@@ -21,6 +21,14 @@ final trendingProductsProvider = FutureProvider<List<Product>>((ref) {
   return ref.watch(catalogRepositoryProvider).fetchProducts(limit: 20);
 });
 
+final dealOfTheDayProvider = FutureProvider<Product?>((ref) {
+  return ref.watch(catalogRepositoryProvider).fetchDealOfTheDay();
+});
+
+final recommendedProductsProvider = FutureProvider<List<Product>>((ref) {
+  return ref.watch(catalogRepositoryProvider).fetchRecommendedProducts(limit: 10);
+});
+
 final productProvider = FutureProvider.family<Product, String>((ref, id) {
   return ref.watch(catalogRepositoryProvider).fetchProduct(id);
 });

@@ -38,19 +38,6 @@ class ProductCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   _ProductImage(url: product.primaryImageUrl),
-                  if (product.isOnSale)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
-                        child: Text(
-                          '${product.discountPercent}% OFF',
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
                   if (onWishlistToggle != null)
                     Positioned(
                       top: 4,
@@ -68,7 +55,7 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -76,17 +63,17 @@ class ProductCard extends StatelessWidget {
                     product.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded, color: AppColors.rating, size: 14),
-                      const SizedBox(width: 2),
-                      Text(product.ratingAvg.toStringAsFixed(1), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
+                  if (product.description != null)
+                    Text(
+                      product.description!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                    ),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Text(formatCurrency(product.price), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -100,7 +87,33 @@ class ProductCard extends StatelessWidget {
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${product.discountPercent}%Off',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      ...List.generate(5, (index) {
+                        return Icon(
+                          index < product.ratingAvg.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                          color: index < product.ratingAvg.round() ? Colors.amber : AppColors.textSecondary.withOpacity(0.5),
+                          size: 14,
+                        );
+                      }),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${product.ratingCount}',
+                        style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                      ),
                     ],
                   ),
                 ],
