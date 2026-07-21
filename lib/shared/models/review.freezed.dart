@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Review {
 
- String get id; String get productId; String get userId; String? get orderItemId; int get rating; String? get comment; List<String> get images; bool get isApproved; DateTime get createdAt; Profile? get profile;
+ String get id;@JsonKey(name: 'product_id') String get productId;@JsonKey(name: 'customer_name') String get customerName; int get rating;@JsonKey(name: 'review_title') String? get reviewTitle;@JsonKey(name: 'review_description') String? get reviewDescription;@JsonKey(name: 'customer_avatar') String? get customerAvatar;@JsonKey(name: 'verified_purchase') bool get verifiedPurchase; String get status;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'updated_at') DateTime get updatedAt;
 /// Create a copy of Review
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ReviewCopyWith<Review> get copyWith => _$ReviewCopyWithImpl<Review>(this as Rev
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Review&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.orderItemId, orderItemId) || other.orderItemId == orderItemId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.isApproved, isApproved) || other.isApproved == isApproved)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.profile, profile) || other.profile == profile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Review&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.reviewTitle, reviewTitle) || other.reviewTitle == reviewTitle)&&(identical(other.reviewDescription, reviewDescription) || other.reviewDescription == reviewDescription)&&(identical(other.customerAvatar, customerAvatar) || other.customerAvatar == customerAvatar)&&(identical(other.verifiedPurchase, verifiedPurchase) || other.verifiedPurchase == verifiedPurchase)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,userId,orderItemId,rating,comment,const DeepCollectionEquality().hash(images),isApproved,createdAt,profile);
+int get hashCode => Object.hash(runtimeType,id,productId,customerName,rating,reviewTitle,reviewDescription,customerAvatar,verifiedPurchase,status,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Review(id: $id, productId: $productId, userId: $userId, orderItemId: $orderItemId, rating: $rating, comment: $comment, images: $images, isApproved: $isApproved, createdAt: $createdAt, profile: $profile)';
+  return 'Review(id: $id, productId: $productId, customerName: $customerName, rating: $rating, reviewTitle: $reviewTitle, reviewDescription: $reviewDescription, customerAvatar: $customerAvatar, verifiedPurchase: $verifiedPurchase, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $ReviewCopyWith<$Res>  {
   factory $ReviewCopyWith(Review value, $Res Function(Review) _then) = _$ReviewCopyWithImpl;
 @useResult
 $Res call({
- String id, String productId, String userId, String? orderItemId, int rating, String? comment, List<String> images, bool isApproved, DateTime createdAt, Profile? profile
+ String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'customer_name') String customerName, int rating,@JsonKey(name: 'review_title') String? reviewTitle,@JsonKey(name: 'review_description') String? reviewDescription,@JsonKey(name: 'customer_avatar') String? customerAvatar,@JsonKey(name: 'verified_purchase') bool verifiedPurchase, String status,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt
 });
 
 
-$ProfileCopyWith<$Res>? get profile;
+
 
 }
 /// @nodoc
@@ -65,34 +65,23 @@ class _$ReviewCopyWithImpl<$Res>
 
 /// Create a copy of Review
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? userId = null,Object? orderItemId = freezed,Object? rating = null,Object? comment = freezed,Object? images = null,Object? isApproved = null,Object? createdAt = null,Object? profile = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? productId = null,Object? customerName = null,Object? rating = null,Object? reviewTitle = freezed,Object? reviewDescription = freezed,Object? customerAvatar = freezed,Object? verifiedPurchase = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,orderItemId: freezed == orderItemId ? _self.orderItemId : orderItemId // ignore: cast_nullable_to_non_nullable
-as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
-as int,comment: freezed == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
-as String?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
-as List<String>,isApproved: null == isApproved ? _self.isApproved : isApproved // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,profile: freezed == profile ? _self.profile : profile // ignore: cast_nullable_to_non_nullable
-as Profile?,
+as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
+as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as int,reviewTitle: freezed == reviewTitle ? _self.reviewTitle : reviewTitle // ignore: cast_nullable_to_non_nullable
+as String?,reviewDescription: freezed == reviewDescription ? _self.reviewDescription : reviewDescription // ignore: cast_nullable_to_non_nullable
+as String?,customerAvatar: freezed == customerAvatar ? _self.customerAvatar : customerAvatar // ignore: cast_nullable_to_non_nullable
+as String?,verifiedPurchase: null == verifiedPurchase ? _self.verifiedPurchase : verifiedPurchase // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
   ));
 }
-/// Create a copy of Review
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$ProfileCopyWith<$Res>? get profile {
-    if (_self.profile == null) {
-    return null;
-  }
 
-  return $ProfileCopyWith<$Res>(_self.profile!, (value) {
-    return _then(_self.copyWith(profile: value));
-  });
-}
 }
 
 
@@ -174,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String productId,  String userId,  String? orderItemId,  int rating,  String? comment,  List<String> images,  bool isApproved,  DateTime createdAt,  Profile? profile)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'customer_name')  String customerName,  int rating, @JsonKey(name: 'review_title')  String? reviewTitle, @JsonKey(name: 'review_description')  String? reviewDescription, @JsonKey(name: 'customer_avatar')  String? customerAvatar, @JsonKey(name: 'verified_purchase')  bool verifiedPurchase,  String status, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Review() when $default != null:
-return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.rating,_that.comment,_that.images,_that.isApproved,_that.createdAt,_that.profile);case _:
+return $default(_that.id,_that.productId,_that.customerName,_that.rating,_that.reviewTitle,_that.reviewDescription,_that.customerAvatar,_that.verifiedPurchase,_that.status,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -195,10 +184,10 @@ return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.ra
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String productId,  String userId,  String? orderItemId,  int rating,  String? comment,  List<String> images,  bool isApproved,  DateTime createdAt,  Profile? profile)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'customer_name')  String customerName,  int rating, @JsonKey(name: 'review_title')  String? reviewTitle, @JsonKey(name: 'review_description')  String? reviewDescription, @JsonKey(name: 'customer_avatar')  String? customerAvatar, @JsonKey(name: 'verified_purchase')  bool verifiedPurchase,  String status, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _Review():
-return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.rating,_that.comment,_that.images,_that.isApproved,_that.createdAt,_that.profile);case _:
+return $default(_that.id,_that.productId,_that.customerName,_that.rating,_that.reviewTitle,_that.reviewDescription,_that.customerAvatar,_that.verifiedPurchase,_that.status,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +204,10 @@ return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.ra
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String productId,  String userId,  String? orderItemId,  int rating,  String? comment,  List<String> images,  bool isApproved,  DateTime createdAt,  Profile? profile)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'product_id')  String productId, @JsonKey(name: 'customer_name')  String customerName,  int rating, @JsonKey(name: 'review_title')  String? reviewTitle, @JsonKey(name: 'review_description')  String? reviewDescription, @JsonKey(name: 'customer_avatar')  String? customerAvatar, @JsonKey(name: 'verified_purchase')  bool verifiedPurchase,  String status, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Review() when $default != null:
-return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.rating,_that.comment,_that.images,_that.isApproved,_that.createdAt,_that.profile);case _:
+return $default(_that.id,_that.productId,_that.customerName,_that.rating,_that.reviewTitle,_that.reviewDescription,_that.customerAvatar,_that.verifiedPurchase,_that.status,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -230,25 +219,20 @@ return $default(_that.id,_that.productId,_that.userId,_that.orderItemId,_that.ra
 @JsonSerializable()
 
 class _Review implements Review {
-  const _Review({required this.id, required this.productId, required this.userId, this.orderItemId, required this.rating, this.comment, final  List<String> images = const [], this.isApproved = true, required this.createdAt, this.profile}): _images = images;
+  const _Review({required this.id, @JsonKey(name: 'product_id') required this.productId, @JsonKey(name: 'customer_name') required this.customerName, required this.rating, @JsonKey(name: 'review_title') this.reviewTitle, @JsonKey(name: 'review_description') this.reviewDescription, @JsonKey(name: 'customer_avatar') this.customerAvatar, @JsonKey(name: 'verified_purchase') this.verifiedPurchase = false, this.status = 'Published', @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt});
   factory _Review.fromJson(Map<String, dynamic> json) => _$ReviewFromJson(json);
 
 @override final  String id;
-@override final  String productId;
-@override final  String userId;
-@override final  String? orderItemId;
+@override@JsonKey(name: 'product_id') final  String productId;
+@override@JsonKey(name: 'customer_name') final  String customerName;
 @override final  int rating;
-@override final  String? comment;
- final  List<String> _images;
-@override@JsonKey() List<String> get images {
-  if (_images is EqualUnmodifiableListView) return _images;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_images);
-}
-
-@override@JsonKey() final  bool isApproved;
-@override final  DateTime createdAt;
-@override final  Profile? profile;
+@override@JsonKey(name: 'review_title') final  String? reviewTitle;
+@override@JsonKey(name: 'review_description') final  String? reviewDescription;
+@override@JsonKey(name: 'customer_avatar') final  String? customerAvatar;
+@override@JsonKey(name: 'verified_purchase') final  bool verifiedPurchase;
+@override@JsonKey() final  String status;
+@override@JsonKey(name: 'created_at') final  DateTime createdAt;
+@override@JsonKey(name: 'updated_at') final  DateTime updatedAt;
 
 /// Create a copy of Review
 /// with the given fields replaced by the non-null parameter values.
@@ -263,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Review&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.orderItemId, orderItemId) || other.orderItemId == orderItemId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.comment, comment) || other.comment == comment)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.isApproved, isApproved) || other.isApproved == isApproved)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.profile, profile) || other.profile == profile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Review&&(identical(other.id, id) || other.id == id)&&(identical(other.productId, productId) || other.productId == productId)&&(identical(other.customerName, customerName) || other.customerName == customerName)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.reviewTitle, reviewTitle) || other.reviewTitle == reviewTitle)&&(identical(other.reviewDescription, reviewDescription) || other.reviewDescription == reviewDescription)&&(identical(other.customerAvatar, customerAvatar) || other.customerAvatar == customerAvatar)&&(identical(other.verifiedPurchase, verifiedPurchase) || other.verifiedPurchase == verifiedPurchase)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,productId,userId,orderItemId,rating,comment,const DeepCollectionEquality().hash(_images),isApproved,createdAt,profile);
+int get hashCode => Object.hash(runtimeType,id,productId,customerName,rating,reviewTitle,reviewDescription,customerAvatar,verifiedPurchase,status,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'Review(id: $id, productId: $productId, userId: $userId, orderItemId: $orderItemId, rating: $rating, comment: $comment, images: $images, isApproved: $isApproved, createdAt: $createdAt, profile: $profile)';
+  return 'Review(id: $id, productId: $productId, customerName: $customerName, rating: $rating, reviewTitle: $reviewTitle, reviewDescription: $reviewDescription, customerAvatar: $customerAvatar, verifiedPurchase: $verifiedPurchase, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -283,11 +267,11 @@ abstract mixin class _$ReviewCopyWith<$Res> implements $ReviewCopyWith<$Res> {
   factory _$ReviewCopyWith(_Review value, $Res Function(_Review) _then) = __$ReviewCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String productId, String userId, String? orderItemId, int rating, String? comment, List<String> images, bool isApproved, DateTime createdAt, Profile? profile
+ String id,@JsonKey(name: 'product_id') String productId,@JsonKey(name: 'customer_name') String customerName, int rating,@JsonKey(name: 'review_title') String? reviewTitle,@JsonKey(name: 'review_description') String? reviewDescription,@JsonKey(name: 'customer_avatar') String? customerAvatar,@JsonKey(name: 'verified_purchase') bool verifiedPurchase, String status,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'updated_at') DateTime updatedAt
 });
 
 
-@override $ProfileCopyWith<$Res>? get profile;
+
 
 }
 /// @nodoc
@@ -300,35 +284,24 @@ class __$ReviewCopyWithImpl<$Res>
 
 /// Create a copy of Review
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? userId = null,Object? orderItemId = freezed,Object? rating = null,Object? comment = freezed,Object? images = null,Object? isApproved = null,Object? createdAt = null,Object? profile = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? productId = null,Object? customerName = null,Object? rating = null,Object? reviewTitle = freezed,Object? reviewDescription = freezed,Object? customerAvatar = freezed,Object? verifiedPurchase = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_Review(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
-as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
-as String,orderItemId: freezed == orderItemId ? _self.orderItemId : orderItemId // ignore: cast_nullable_to_non_nullable
-as String?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
-as int,comment: freezed == comment ? _self.comment : comment // ignore: cast_nullable_to_non_nullable
-as String?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
-as List<String>,isApproved: null == isApproved ? _self.isApproved : isApproved // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,profile: freezed == profile ? _self.profile : profile // ignore: cast_nullable_to_non_nullable
-as Profile?,
+as String,customerName: null == customerName ? _self.customerName : customerName // ignore: cast_nullable_to_non_nullable
+as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as int,reviewTitle: freezed == reviewTitle ? _self.reviewTitle : reviewTitle // ignore: cast_nullable_to_non_nullable
+as String?,reviewDescription: freezed == reviewDescription ? _self.reviewDescription : reviewDescription // ignore: cast_nullable_to_non_nullable
+as String?,customerAvatar: freezed == customerAvatar ? _self.customerAvatar : customerAvatar // ignore: cast_nullable_to_non_nullable
+as String?,verifiedPurchase: null == verifiedPurchase ? _self.verifiedPurchase : verifiedPurchase // ignore: cast_nullable_to_non_nullable
+as bool,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
   ));
 }
 
-/// Create a copy of Review
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$ProfileCopyWith<$Res>? get profile {
-    if (_self.profile == null) {
-    return null;
-  }
 
-  return $ProfileCopyWith<$Res>(_self.profile!, (value) {
-    return _then(_self.copyWith(profile: value));
-  });
-}
 }
 
 // dart format on

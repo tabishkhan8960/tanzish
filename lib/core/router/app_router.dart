@@ -14,6 +14,7 @@ import '../../features/admin/presentation/widgets/admin_shell.dart';
 import '../../features/admin/products/presentation/screens/admin_add_product_screen.dart';
 import '../../features/admin/products/presentation/screens/admin_product_list_screen.dart';
 import '../../features/admin/products/presentation/screens/admin_product_media_screen.dart';
+import '../../features/admin/reviews/presentation/screens/admin_add_review_screen.dart';
 import '../../features/admin/reviews/presentation/screens/admin_reviews_screen.dart';
 import '../../features/admin/roles/presentation/screens/admin_roles_screen.dart';
 import '../../features/admin/transactions/presentation/screens/admin_transactions_screen.dart';
@@ -87,6 +88,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/admin/products', builder: (context, state) => const AdminProductListScreen()),
           GoRoute(path: '/admin/products/:id/edit', builder: (context, state) => AdminAddProductScreen(productId: state.pathParameters['id'])),
           GoRoute(path: '/admin/reviews', builder: (context, state) => const AdminReviewsScreen()),
+          GoRoute(path: '/admin/reviews/new', builder: (context, state) => const AdminAddReviewScreen()),
+          GoRoute(path: '/admin/reviews/:id/edit', builder: (context, state) => AdminAddReviewScreen(reviewId: state.pathParameters['id'])),
           GoRoute(path: '/admin/roles', builder: (context, state) => const AdminRolesScreen()),
           GoRoute(path: '/admin/permissions', builder: (context, state) => const AdminPermissionsScreen()),
         ],

@@ -19,16 +19,16 @@ const _mainMenu = [
   _AdminNavItem(Icons.people_outline, 'Customers', '/admin/customers'),
   _AdminNavItem(Icons.confirmation_number_outlined, 'Coupon Code', '/admin/coupons'),
   _AdminNavItem(Icons.category_outlined, 'Categories', '/admin/categories'),
-  _AdminNavItem(Icons.swap_horiz_outlined, 'Transaction', '/admin/transactions'),
+  _AdminNavItem(Icons.swap_horiz, 'Transaction', '/admin/transactions'),
   _AdminNavItem(Icons.local_offer_outlined, 'Brand', '/admin/brands'),
 ];
 
 const _productMenu = [
   _AdminNavItem(Icons.inventory_2_outlined, 'Inventory', '/admin/inventory'),
   _AdminNavItem(Icons.add_box_outlined, 'Add Products', '/admin/products/new'),
-  _AdminNavItem(Icons.perm_media_outlined, 'Product Media', '/admin/products/media'),
+  _AdminNavItem(Icons.image_outlined, 'Product Media', '/admin/product_media'),
   _AdminNavItem(Icons.list_alt_outlined, 'Product List', '/admin/products'),
-  _AdminNavItem(Icons.reviews_outlined, 'Product Reviews', '/admin/reviews'),
+  _AdminNavItem(Icons.star_outline, 'Product Reviews', '/admin/reviews'),
 ];
 
 const _adminMenu = [

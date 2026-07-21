@@ -37,7 +37,6 @@ class CategorySchema {
   static const List<CategoryField> clothingFields = [
     CategoryField(name: 'category', label: 'Category', type: CategoryFieldType.dropdown, options: ['Men', 'Women', 'Kids', 'Unisex'], isRequired: true),
     CategoryField(name: 'clothing_category', label: 'Clothing Category', type: CategoryFieldType.dropdown, options: ['T-Shirt', 'Shirt', 'Jeans', 'Pants', 'Shorts', 'Jacket', 'Hoodie', 'Sweatshirt', 'Sweater', 'Kurta', 'Dress', 'Skirt', 'Blazer', 'Coat', 'Ethnic Wear', 'Innerwear', 'Sportswear', 'Sleepwear']),
-    CategoryField(name: 'gender', label: 'Gender', type: CategoryFieldType.dropdown, options: ['Men', 'Women', 'Kids', 'Unisex']),
     CategoryField(name: 'brand', label: 'Brand', type: CategoryFieldType.text),
     CategoryField(name: 'material', label: 'Material', type: CategoryFieldType.text),
     CategoryField(name: 'fabric', label: 'Fabric', type: CategoryFieldType.text),
