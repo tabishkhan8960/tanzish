@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import '../../../../../../shared/models/inventory.dart';
 
 class AdminVariantManager extends StatefulWidget {
-  const AdminVariantManager({super.key, required this.variants, required this.onChanged});
+  const AdminVariantManager({
+    super.key, 
+    required this.variants, 
+    required this.variantColumns,
+    required this.onChanged
+  });
   
   final List<Inventory> variants;
+  final List<String> variantColumns;
   final ValueChanged<List<Inventory>> onChanged;
 
   @override
@@ -20,13 +26,26 @@ class _AdminVariantManagerState extends State<AdminVariantManager> {
     _variants = List.from(widget.variants);
   }
 
-  void _addCustomVariant() {
+  @override
+  void didUpdateWidget(AdminVariantManager oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.variants != widget.variants) {
+      _variants = List.from(widget.variants);
+    }
+  }
+
+  void _addVariant() {
     setState(() {
+      final initialAttributes = <String, dynamic>{};
+      for (final col in widget.variantColumns) {
+        initialAttributes[col] = '';
+      }
+      
       _variants.add(Inventory(
         id: '', 
         productId: '', 
         updatedAt: DateTime.now(),
-        variantAttributes: {'Custom': 'New Option'},
+        variantAttributes: initialAttributes,
       ));
     });
     widget.onChanged(_variants);
@@ -40,22 +59,32 @@ class _AdminVariantManagerState extends State<AdminVariantManager> {
         const Text('Variants & Stock', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 12),
         if (_variants.isEmpty)
-          const Text('No variants added. Product has a single default configuration.')
+          const Text('No variants added.')
         else
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Variant')),
-                DataColumn(label: Text('Price')),
-                DataColumn(label: Text('SKU')),
-                DataColumn(label: Text('Stock')),
-                DataColumn(label: Text('Actions')),
+              columns: [
+                for (final col in widget.variantColumns) DataColumn(label: Text(col)),
+                const DataColumn(label: Text('Price')),
+                const DataColumn(label: Text('SKU')),
+                const DataColumn(label: Text('Stock')),
+                const DataColumn(label: Text('Actions')),
               ],
               rows: _variants.map((v) {
-                final label = v.variantAttributes.isEmpty ? 'Default' : v.variantAttributes.entries.map((e) => '\${e.value}').join(' / ');
                 return DataRow(cells: [
-                  DataCell(Text(label)),
+                  for (final col in widget.variantColumns)
+                    DataCell(TextFormField(
+                      initialValue: v.variantAttributes[col]?.toString() ?? '',
+                      decoration: InputDecoration(hintText: col),
+                      onChanged: (val) {
+                        final idx = _variants.indexOf(v);
+                        final newAttrs = Map<String, dynamic>.from(v.variantAttributes);
+                        newAttrs[col] = val;
+                        _variants[idx] = v.copyWith(variantAttributes: newAttrs);
+                        widget.onChanged(_variants);
+                      },
+                    )),
                   DataCell(TextFormField(
                     initialValue: v.price?.toString() ?? '',
                     decoration: const InputDecoration(hintText: '0.00'),
@@ -98,9 +127,9 @@ class _AdminVariantManagerState extends State<AdminVariantManager> {
           ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
-          onPressed: _addCustomVariant,
+          onPressed: _addVariant,
           icon: const Icon(Icons.add),
-          label: const Text('Add custom variant'),
+          label: const Text('Add Variant'),
         ),
       ],
     );

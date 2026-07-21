@@ -30,8 +30,8 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
   final _description = TextEditingController();
   final _imageManager = ProductImageManager();
   
+  ProductType? _productType;
   String? _categoryId;
-  String? _brandId;
   bool _isActive = true;
   bool _isFeatured = false;
   bool _saving = false;
@@ -51,8 +51,6 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
     super.initState();
     if (_isEdit) {
       _loadVariants();
-    } else {
-      _variants = [Inventory(id: '', productId: '', updatedAt: DateTime.now(), variantAttributes: {})]; // Default no-variant
     }
   }
 
@@ -62,9 +60,6 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
       final rows = await SupabaseConfig.client.from(SupabaseTables.inventory).select().eq('product_id', widget.productId!);
       setState(() {
         _variants = rows.map((e) => Inventory.fromJson(e)).toList();
-        if (_variants.isEmpty) {
-          _variants = [Inventory(id: '', productId: widget.productId!, updatedAt: DateTime.now(), variantAttributes: {})];
-        }
       });
     } catch (e) {
       // Ignored for now
@@ -73,18 +68,27 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
     }
   }
 
-  void _hydrate(Product product, List<CategoryField> fields) {
+  void _hydrate(Product product) {
     if (_hydrated) return;
     _hydrated = true;
     _name.text = product.name;
     _description.text = product.description ?? '';
-    _imageManager.loadExisting(product.images.map((i) => i.imageUrl).toList());
     _categoryId = product.categoryId;
-    _brandId = product.brandId;
+    _imageManager.loadExisting(product.images.map((i) => i.imageUrl).toList());
+    
+    // Parse the product type if saved in attributes
+    if (product.attributes.containsKey('product_type')) {
+      final savedType = product.attributes['product_type'] as String;
+      _productType = ProductType.values.firstWhere((e) => e.name == savedType, orElse: () => ProductType.clothing);
+    } else {
+      _productType = ProductType.clothing;
+    }
+    
     _isActive = product.isActive;
     _isFeatured = product.isFeatured;
     
     // Hydrate dynamic fields
+    final fields = CategorySchema.getFieldsForType(_productType!);
     for (final field in fields) {
       final val = product.attributes[field.name];
       if (val != null) {
@@ -93,6 +97,10 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
         }
         _dynamicControllers[field.name]!.text = val.toString();
       }
+    }
+
+    if (_variants.isEmpty) {
+       _variants = [Inventory(id: '', productId: widget.productId!, updatedAt: DateTime.now(), variantAttributes: {})];
     }
   }
 
@@ -107,20 +115,26 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
     super.dispose();
   }
 
-  void _onCategoryChanged(String? newCategoryId, String categoryName) {
+  void _onProductTypeChanged(ProductType type) {
     setState(() {
-      _categoryId = newCategoryId;
-      // Re-initialize dynamic controllers for the new category
-      final fields = CategorySchema.getFieldsForCategory(categoryName);
+      _productType = type;
+      // Re-initialize dynamic controllers for the new product type
+      final fields = CategorySchema.getFieldsForType(type);
       _dynamicControllers.clear();
       for (final f in fields) {
         _dynamicControllers[f.name] = TextEditingController();
       }
+      // Reset variants entirely so schema matches the new type
+      _variants = [Inventory(id: '', productId: '', updatedAt: DateTime.now(), variantAttributes: {})];
     });
   }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_productType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Product Type.')));
+      return;
+    }
     if (_variants.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('At least one variant must exist.')));
       return;
@@ -132,7 +146,7 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
       final slug = _name.text.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-');
       
       // Collect dynamic attributes
-      final Map<String, dynamic> attributes = {};
+      final Map<String, dynamic> attributes = {'product_type': _productType!.name};
       _dynamicControllers.forEach((k, v) {
         if (v.text.trim().isNotEmpty) {
           attributes[k] = v.text.trim();
@@ -156,7 +170,6 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
         'barcode': baseBarcode,
         'weight_grams': baseWeight,
         'category_id': _categoryId,
-        'brand_id': _brandId,
         'is_active': _isActive,
         'is_featured': _isFeatured,
         'attributes': attributes,
@@ -181,11 +194,12 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(adminAllCategoriesProvider);
-    final brandsAsync = ref.watch(adminAllBrandsProvider);
     final productAsync = _isEdit ? ref.watch(productProvider(widget.productId!)) : null;
 
-    Widget form(List<CategoryField> fields) {
+    Widget form() {
+      final fields = _productType != null ? CategorySchema.getFieldsForType(_productType!) : <CategoryField>[];
+      final variantColumns = _productType != null ? CategorySchema.getVariantColumnsForType(_productType!) : <String>[];
+
       return Form(
         key: _formKey,
         child: ConstrainedBox(
@@ -193,93 +207,119 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppTextField(controller: _name, hint: 'Product name', label: 'Name', validator: (v) => v == null || v.isEmpty ? 'Required' : null),
-              const SizedBox(height: 14),
-              categoriesAsync.when(
-                data: (categories) => DropdownButtonFormField<String>(
-                  initialValue: _categoryId,
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  items: [for (final c in categories) DropdownMenuItem(value: c.id, child: Text(c.name))],
-                  onChanged: (v) {
-                    final catName = categories.firstWhere((c) => c.id == v).name;
-                    _onCategoryChanged(v, catName);
-                  },
-                ),
-                loading: () => const LoadingView(),
-                error: (e, _) => const Text('Could not load categories'),
+              // 1. PRODUCT TYPE (Always visible first)
+              const Text('Step 1: Select Product Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<ProductType>(
+                value: _productType,
+                decoration: const InputDecoration(labelText: 'Product Type'),
+                items: ProductType.values.map((pt) => DropdownMenuItem(value: pt, child: Text(CategorySchema.getLabelForType(pt)))).toList(),
+                onChanged: (v) {
+                  if (v != null) _onProductTypeChanged(v);
+                },
+                validator: (v) => v == null ? 'Please select a product type' : null,
               ),
-              const SizedBox(height: 14),
-              brandsAsync.when(
-                data: (brands) => DropdownButtonFormField<String>(
-                  initialValue: _brandId,
-                  decoration: const InputDecoration(labelText: 'Brand'),
-                  items: [for (final b in brands) DropdownMenuItem(value: b.id, child: Text(b.name))],
-                  onChanged: (v) => setState(() => _brandId = v),
-                ),
-                loading: () => const LoadingView(),
-                error: (e, _) => const Text('Could not load brands'),
-              ),
-              const SizedBox(height: 20),
-              if (fields.isNotEmpty) ...[
-                const Text('Category Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 24),
+
+              // 2. ONLY SHOW THE REST IF PRODUCT TYPE IS SELECTED
+              if (_productType != null) ...[
+                const Divider(),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: fields.map((f) {
-                    if (!_dynamicControllers.containsKey(f.name)) {
-                      _dynamicControllers[f.name] = TextEditingController();
-                    }
-                    if (f.type == CategoryFieldType.dropdown) {
-                      return SizedBox(
-                        width: 300,
-                        child: DropdownButtonFormField<String>(
-                          initialValue: _dynamicControllers[f.name]!.text.isEmpty ? null : _dynamicControllers[f.name]!.text,
-                          decoration: InputDecoration(labelText: f.label),
-                          items: f.options.map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
-                          onChanged: (v) => setState(() => _dynamicControllers[f.name]!.text = v ?? ''),
-                          validator: f.isRequired ? (v) => v == null || v.isEmpty ? 'Required' : null : null,
-                        ),
-                      );
-                    }
-                    return SizedBox(
-                      width: 300,
-                      child: AppTextField(
-                        controller: _dynamicControllers[f.name]!,
-                        hint: '',
-                        label: f.label,
-                        validator: f.isRequired ? (v) => v == null || v.isEmpty ? 'Required' : null : null,
-                        keyboardType: f.type == CategoryFieldType.number ? TextInputType.number : TextInputType.text,
-                      ),
-                    );
-                  }).toList(),
+                const Text('Step 2: General Information', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 12),
+                AppTextField(controller: _name, hint: 'Product name', label: 'Name', validator: (v) => v == null || v.isEmpty ? 'Required' : null),
+                const SizedBox(height: 14),
+                ref.watch(adminAllCategoriesProvider).when(
+                  data: (categories) => DropdownButtonFormField<String>(
+                    value: _categoryId,
+                    decoration: const InputDecoration(labelText: 'Store Menu Category (Appears in App Menu)'),
+                    items: [
+                      const DropdownMenuItem(value: null, child: Text('No menu category')),
+                      for (final c in categories) DropdownMenuItem(value: c.id, child: Text(c.name))
+                    ],
+                    onChanged: (v) => setState(() => _categoryId = v),
+                    validator: (v) => v == null ? 'Required for Customer App Menu' : null,
+                  ),
+                  loading: () => const LoadingView(),
+                  error: (e, _) => const Text('Could not load categories'),
                 ),
                 const SizedBox(height: 20),
+
+                if (fields.isNotEmpty) ...[
+                  const Text('Category Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: fields.map((f) {
+                      if (!_dynamicControllers.containsKey(f.name)) {
+                        _dynamicControllers[f.name] = TextEditingController();
+                      }
+                      if (f.type == CategoryFieldType.boolean) {
+                         return SizedBox(
+                           width: 300,
+                           child: SwitchListTile(
+                             title: Text(f.label),
+                             value: _dynamicControllers[f.name]!.text == 'true',
+                             onChanged: (v) => setState(() => _dynamicControllers[f.name]!.text = v.toString()),
+                           ),
+                         );
+                      }
+                      if (f.type == CategoryFieldType.dropdown) {
+                        return SizedBox(
+                          width: 300,
+                          child: DropdownButtonFormField<String>(
+                            initialValue: _dynamicControllers[f.name]!.text.isEmpty ? null : _dynamicControllers[f.name]!.text,
+                            decoration: InputDecoration(labelText: f.label),
+                            items: f.options.map((o) => DropdownMenuItem(value: o, child: Text(o))).toList(),
+                            onChanged: (v) => setState(() => _dynamicControllers[f.name]!.text = v ?? ''),
+                            validator: f.isRequired ? (v) => v == null || v.isEmpty ? 'Required' : null : null,
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: 300,
+                        child: AppTextField(
+                          controller: _dynamicControllers[f.name]!,
+                          hint: '',
+                          label: f.label,
+                          validator: f.isRequired ? (v) => v == null || v.isEmpty ? 'Required' : null : null,
+                          keyboardType: f.type == CategoryFieldType.number ? TextInputType.number : TextInputType.text,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                AppTextField(controller: _description, hint: 'Product description', label: 'Description'),
+                const SizedBox(height: 14),
+                ProductImageUploadField(manager: _imageManager),
+                const SizedBox(height: 20),
+
+                if (_variantsLoading) const LoadingView() else AdminVariantManager(
+                  variants: _variants,
+                  variantColumns: variantColumns,
+                  onChanged: (v) => setState(() => _variants = v),
+                ),
+                const SizedBox(height: 20),
+                
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Status: Active'),
+                  subtitle: const Text('Product will be hidden from customers if disabled.'),
+                  value: _isActive,
+                  onChanged: (v) => setState(() => _isActive = v),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Featured product'),
+                  value: _isFeatured,
+                  onChanged: (v) => setState(() => _isFeatured = v),
+                ),
+                const SizedBox(height: 20),
+                PrimaryButton(label: _isEdit ? 'Save Changes' : 'Add Product', onPressed: _save, loading: _saving),
               ],
-              AppTextField(controller: _description, hint: 'Product description', label: 'Description'),
-              const SizedBox(height: 14),
-              ProductImageUploadField(manager: _imageManager),
-              const SizedBox(height: 20),
-              if (_variantsLoading) const LoadingView() else AdminVariantManager(
-                variants: _variants,
-                onChanged: (v) => setState(() => _variants = v),
-              ),
-              const SizedBox(height: 20),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Status: Active'),
-                subtitle: const Text('Product will be hidden from customers if disabled.'),
-                value: _isActive,
-                onChanged: (v) => setState(() => _isActive = v),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Featured product'),
-                value: _isFeatured,
-                onChanged: (v) => setState(() => _isFeatured = v),
-              ),
-              const SizedBox(height: 20),
-              PrimaryButton(label: _isEdit ? 'Save Changes' : 'Add Product', onPressed: _save, loading: _saving),
             ],
           ),
         ),
@@ -293,29 +333,13 @@ class _AdminAddProductScreenState extends ConsumerState<AdminAddProductScreen> {
         child: _isEdit
             ? productAsync!.when(
                 data: (product) {
-                  return categoriesAsync.when(
-                    data: (categories) {
-                      final cName = categories.firstWhere((c) => c.id == product.categoryId, orElse: () => categories.first).name;
-                      final fields = CategorySchema.getFieldsForCategory(cName);
-                      _hydrate(product, fields);
-                      return SingleChildScrollView(child: form(fields));
-                    },
-                    loading: () => const LoadingView(),
-                    error: (e, _) => const ErrorView(message: 'Could not load categories'),
-                  );
+                  _hydrate(product);
+                  return SingleChildScrollView(child: form());
                 },
                 loading: () => const LoadingView(),
                 error: (e, _) => const ErrorView(message: 'Could not load product'),
               )
-            : categoriesAsync.when(
-                data: (categories) {
-                  final catName = _categoryId != null ? categories.firstWhere((c) => c.id == _categoryId, orElse: () => categories.first).name : '';
-                  final fields = CategorySchema.getFieldsForCategory(catName);
-                  return SingleChildScrollView(child: form(fields));
-                },
-                loading: () => const LoadingView(),
-                error: (e, _) => const ErrorView(message: 'Could not load categories'),
-              ),
+            : SingleChildScrollView(child: form()),
       ),
     );
   }
