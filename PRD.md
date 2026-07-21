@@ -64,6 +64,43 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-21 — Branch split: admin code removed from `main`
+
+- This repo was originally bootstrapped as a single codebase with both
+  Customer and Admin UI, role-based-redirected at runtime (see log below) —
+  that shape doesn't match the intended two-branch architecture (`main` =
+  customer app only, `admin` = admin panel only, confirmed by user). The
+  `admin` branch already had its own copy of everything (same bootstrap
+  commit), so no code needed to move there — this was purely a removal pass
+  on `main`.
+- Removed from `main`: `lib/features/admin/**` in full; the admin-only
+  repositories `customer_repository.dart`, `dashboard_repository.dart`,
+  `role_permission_repository.dart`, `transaction_repository.dart`,
+  `review_repository.dart` (none were referenced by any customer feature);
+  the `role_permission` model (`.dart`/`.freezed.dart`/`.g.dart`); the
+  now-pointless `isAdminProvider` in `auth_providers.dart`.
+- `app_router.dart`: dropped all admin imports, the admin `ShellRoute` and
+  its routes, and the `isAdmin` branch in the redirect callback — any
+  authenticated user now simply lands on `/home`. This app no longer checks
+  `profiles.role` for routing at all (`currentProfileProvider` is kept only
+  because `profile_screen.dart` reads it for the account view).
+- Deliberately **not** done: no guard against an admin-role account signing
+  into this app — they'll just see the normal customer experience. Nothing in
+  the PRD asked for that, and adding one would be speculative; revisit if the
+  user wants admins blocked from the customer app.
+- Left alone (not admin-specific despite being unused today):
+  `settings_repository.dart` (generic key/value `settings` table, no UI
+  reads it yet on either branch) and the `inventory_item` model (no
+  Inventory screen exists yet on either branch). Both are neutral scaffolding,
+  not something that needs to live on one branch only.
+- `flutter analyze`: still 0 errors after the removal, only the same two
+  pre-existing deprecation infos (`anonKey`, `RadioListTile`).
+- Kept as shared (used by customer code too, not admin-only): `Review` model
+  (via `catalog_repository.fetchReviews`, even though nothing calls it from a
+  screen yet — the repository method itself is customer-owned code, unlike
+  `review_repository.dart` which was the admin moderation repo and got
+  removed).
+
 ### 2026-07-21 — Project bootstrap + core scaffolding
 
 - Flutter SDK not preinstalled; cloned `stable` branch directly into

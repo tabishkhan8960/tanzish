@@ -15,13 +15,9 @@ final currentUserIdProvider = Provider<String?>((ref) {
   return authState?.session?.user.id ?? ref.watch(authRepositoryProvider).currentUser?.id;
 });
 
-/// The signed-in user's `profiles` row (carries their role for redirect logic).
+/// The signed-in user's `profiles` row.
 final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   final userId = ref.watch(currentUserIdProvider);
   if (userId == null) return null;
   return ref.watch(authRepositoryProvider).fetchProfile(userId);
-});
-
-final isAdminProvider = Provider<bool>((ref) {
-  return ref.watch(currentProfileProvider).value?.role == AppRole.admin;
 });
