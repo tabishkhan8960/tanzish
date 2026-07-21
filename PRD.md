@@ -64,6 +64,33 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-21 — Real anon key added; fixed a router race that hung the app on `/splash` forever
+
+- User supplied the real `SUPABASE_ANON_KEY` for project `qbcdavvwlsisxcvaujfp`
+  — filled into `.env` here (same key as `admin/.env`, same Supabase project).
+- Found and fixed while smoke-testing the `admin` branch with a headless
+  Chromium run: `redirect` gated on `ref.read(authStateChangesProvider)`
+  while `GoRouterRefreshStream` held a second, independent subscription to
+  the same underlying Supabase auth stream just to call `notifyListeners()`.
+  The two subscriptions' callbacks don't fire in the same microtask, so the
+  `redirect` re-run triggered by the stream listener would still read stale
+  `AsyncLoading` from the Riverpod provider — and since the stream only
+  emits once at startup (no session), nothing ever triggered a *second*
+  re-run. Net effect: permanently stuck on the splash screen for any fresh
+  session, not just slow to load. Full root-cause writeup is in `admin`
+  branch's `PRD.md` (2026-07-21 entry) since that's where it was diagnosed.
+- Fix applied identically here: `go_router_refresh_stream.dart` now exports
+  `GoRouterRefreshNotifier extends ChangeNotifier` (plain, no `Stream` ctor)
+  instead of `GoRouterRefreshStream`; `app_router.dart`'s `goRouterProvider`
+  drives it via `ref.listen(authStateChangesProvider, ...)` so
+  refreshListenable and the value `redirect` reads come from the same
+  Riverpod subscription. `flutter analyze`: 0 errors (same pre-existing
+  deprecation infos as before).
+- Not verified end-to-end here yet (smoke test so far was on `admin` only) —
+  worth a `flutter run -d chrome` pass on this branch too before trusting the
+  golden path. Same outstanding blocker applies: migrations not yet applied
+  to the live project.
+
 ### 2026-07-21 — Branch split: admin code removed from `main`
 
 - This repo was originally bootstrapped as a single codebase with both
