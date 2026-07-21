@@ -99,17 +99,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 ],
                 const SizedBox(height: 8),
                 PrimaryButton(label: 'Login', onPressed: _submit, loading: _loading),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an Account? "),
-                    GestureDetector(
-                      onTap: () => context.push('/sign-up'),
-                      child: const Text('Sign Up', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

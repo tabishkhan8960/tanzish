@@ -23,6 +23,10 @@ final adminAllBrandsProvider = FutureProvider<List<Brand>>((ref) {
   return ref.watch(catalogRepositoryProvider).fetchBrands(activeOnly: false);
 });
 
+final productProvider = FutureProvider.family<Product, String>((ref, id) {
+  return ref.watch(catalogRepositoryProvider).fetchProduct(id);
+});
+
 class AdminProductActions {
   static Future<String> upsert(Map<String, dynamic> data, {String? id}) async {
     if (id == null) {

@@ -1,9 +1,12 @@
-# ShopHub
+# ShopHub — Admin Panel
 
-Single Flutter codebase (Web, Android, iOS) with a Customer app and an Admin
-panel, backed by Supabase. Role on `profiles.role` decides which UI a signed-in
-user lands on — see `PRD.md` for the full spec and a running log of what's
-been built.
+Flutter codebase (Web, Android, iOS) for the ShopHub admin dashboard, backed
+by Supabase. This is the `admin` branch — admin UI only. Sign-in requires
+`profiles.role = 'admin'`; any other account is bounced to a "not authorized"
+screen (there's no customer UI here to send them to — that lives on the
+separate `main` branch, checked out in the sibling `customer/` folder). Both
+branches share the same Supabase project (database, auth, storage). See
+`PRD.md` for the full spec and a running log of what's been built.
 
 ## Prerequisites
 
@@ -50,8 +53,6 @@ lib/
   core/       # config (env/supabase), theme, router, shared widgets, utils
   features/
     auth/                 # sign in/up, forgot password, session state
-    customer/              # onboarding, home, search, cart, checkout, orders,
-                            # wishlist, profile, notifications
     admin/                 # dashboard, orders, customers, coupons, categories,
                             # transactions, brands, products, reviews, roles
   shared/

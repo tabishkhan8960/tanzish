@@ -6,7 +6,6 @@ import '../../../../../core/widgets/app_text_field.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/widgets/state_views.dart';
 import '../../../../../shared/models/product.dart';
-import '../../../../customer/home/presentation/providers/home_providers.dart';
 import '../providers/admin_products_providers.dart';
 
 class AdminAddProductScreen extends ConsumerStatefulWidget {

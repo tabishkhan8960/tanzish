@@ -64,6 +64,43 @@ server has edit rights), re-derive exact tokens from there instead.
 
 ## Implementation log
 
+### 2026-07-21 — Branch split: customer code removed from `admin`
+
+- Mirror of the same cleanup already done on `main` (see that branch's log):
+  this repo was originally bootstrapped as one unified codebase with both
+  Customer and Admin UI, committed identically to both branches. Removed
+  everything customer-only from `admin` so it's admin UI only.
+- Removed: `lib/features/customer/**` in full; `sign_up_screen.dart` (public
+  self-registration doesn't belong in an admin panel — admins are provisioned
+  via the existing "Admin role" promote-by-user-id flow, not self-signup;
+  `signUp` isn't called anywhere else in this branch now) and its `/sign-up`
+  route + the now-dead "Sign Up" link on the sign-in screen; the customer-only
+  repositories `address_repository.dart`, `cart_repository.dart`,
+  `wishlist_repository.dart`; the `wishlist_item` and `notification_item`
+  models; `lib/shared/widgets/address_form_sheet.dart` (only ever used by the
+  now-removed customer addresses screen).
+- Kept, even though they look customer-flavored, because something in the
+  admin UI (or a shared model) still depends on them: `address.dart` model
+  (`Order.shippingAddress` embeds one, and Admin Order Details displays it);
+  `cart_item.dart` model (`order_repository.placeOrder(items: List<CartItem>)`
+  needs it to compile, even though no admin screen calls `placeOrder`);
+  `settings_repository.dart` (generic key/value store, unused by anyone on
+  either branch yet — not customer-specific, left alone).
+- `app_router.dart`: dropped the onboarding route/provider reference, the
+  customer `ShellRoute` and its routes, `/sign-up`. Replaced the old
+  "non-admin → `/home`" redirect (there's no `/home` here anymore) with a new
+  `NotAuthorizedScreen` at `/not-authorized` — any signed-in non-admin account
+  lands there instead of a customer UI that no longer exists in this app, with
+  a sign-out button so they can try a different account.
+- Fixed two real cross-feature breaks the deletion caused (`flutter analyze`
+  caught both immediately): `admin_add_product_screen.dart` was importing
+  `productProvider` from the customer home feature's providers file for its
+  edit-mode fetch-by-id — moved that provider into
+  `admin_products_providers.dart` instead of reaching into a folder that no
+  longer exists.
+- `flutter analyze`: 0 errors (one pre-existing `anonKey` deprecation info,
+  same as before). `flutter build web`: succeeds.
+
 ### 2026-07-21 — Project bootstrap + core scaffolding
 
 - Flutter SDK not preinstalled; cloned `stable` branch directly into
