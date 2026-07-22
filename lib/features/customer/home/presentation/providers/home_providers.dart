@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../shared/models/brand.dart';
 import '../../../../../shared/models/category.dart';
+import '../../../../../shared/models/inventory_item.dart';
 import '../../../../../shared/models/product.dart';
 import '../../../../../shared/repositories/catalog_repository.dart';
 
@@ -31,6 +32,10 @@ final recommendedProductsProvider = FutureProvider<List<Product>>((ref) {
 
 final productProvider = FutureProvider.family<Product, String>((ref, id) {
   return ref.watch(catalogRepositoryProvider).fetchProduct(id);
+});
+
+final productInventoryProvider = FutureProvider.family<List<InventoryItem>, String>((ref, productId) {
+  return ref.watch(catalogRepositoryProvider).fetchInventory(productId);
 });
 
 final similarProductsProvider = FutureProvider.family<List<Product>, Product>((ref, product) {

@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/config/supabase_config.dart';
 import '../../core/constants/supabase_tables.dart';
-import '../models/cart_item.dart';
 import '../models/order.dart';
 
 const _orderSelect = '*, order_items(*), shipping_address:addresses!shipping_address_id(*), payments(*)';
@@ -34,68 +33,29 @@ class OrderRepository {
     return Order.fromJson(row);
   }
 
-  /// Creates an order + its line items from the current cart, then clears the
-  /// cart. Runs client-side (no DB function) since RLS already scopes every
-  /// statement to the authenticated user.
+  /// Creates the order, its line items, and its (pending) payment record
+  /// entirely server-side via the `place_order` Postgres function — it
+  /// recomputes the total from live prices, validates the coupon and stock,
+  /// and does all of it in one transaction, so a failed check (empty cart,
+  /// invalid coupon, out of stock) rolls back everything instead of leaving
+  /// a half-created order. Never marks a payment "paid" itself; see
+  /// [OrderRepository.updateStatus] / admin's payment verification for that.
   Future<Order> placeOrder({
-    required String userId,
-    required List<CartItem> items,
     required String shippingAddressId,
-    required num subtotal,
-    required num shippingFee,
-    required num discount,
-    String? couponId,
+    required String shippingMethodId,
+    String? couponCode,
+    required String paymentProvider,
+    String? paymentTransactionRef,
   }) async {
-    final total = subtotal + shippingFee - discount;
-
-    final orderRow = await _client
-        .from(SupabaseTables.orders)
-        .insert({
-          'user_id': userId,
-          'shipping_address_id': shippingAddressId,
-          'billing_address_id': shippingAddressId,
-          'coupon_id': couponId,
-          'subtotal': subtotal,
-          'shipping_fee': shippingFee,
-          'discount': discount,
-          'total': total,
-        })
-        .select()
-        .single();
-
-    final orderId = orderRow['id'] as String;
-
-    await _client.from(SupabaseTables.orderItems).insert([
-      for (final item in items)
-        {
-          'order_id': orderId,
-          'product_id': item.productId,
-          'product_name': item.product?.name ?? 'Product',
-          'variant_attributes': item.variantAttributes,
-          'unit_price': item.product?.price ?? 0,
-          'quantity': item.quantity,
-          'subtotal': item.lineTotal,
-        },
-    ]);
-
-    await _client.from(SupabaseTables.cart).delete().eq('user_id', userId);
-
-    return fetchOrder(orderId);
-  }
-
-  Future<void> recordPayment({
-    required String orderId,
-    required String provider,
-    required num amount,
-  }) async {
-    await _client.from(SupabaseTables.payments).insert({
-      'order_id': orderId,
-      'provider': provider,
-      'amount': amount,
-      'status': 'paid',
-      'paid_at': DateTime.now().toIso8601String(),
+    final row = await _client.rpc('place_order', params: {
+      'p_shipping_address_id': shippingAddressId,
+      'p_shipping_method_id': shippingMethodId,
+      'p_coupon_code': couponCode,
+      'p_payment_provider': paymentProvider,
+      'p_payment_transaction_ref': paymentTransactionRef,
     });
-    await _client.from(SupabaseTables.orders).update({'status': 'confirmed'}).eq('id', orderId);
+    final orderId = (row as Map<String, dynamic>)['id'] as String;
+    return fetchOrder(orderId);
   }
 
   Future<void> updateStatus(String orderId, OrderStatus status) async {

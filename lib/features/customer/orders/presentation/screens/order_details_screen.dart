@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/formatters.dart';
 import '../../../../../core/widgets/state_views.dart';
+import '../../../../../shared/models/payment.dart';
 import '../../../../../shared/widgets/order_status_badge.dart';
+import '../../../checkout/presentation/screens/order_success_screen.dart' show paymentStatusLabel;
 import '../providers/orders_providers.dart';
 
 class OrderDetailsScreen extends ConsumerWidget {

@@ -17,6 +17,7 @@ class SupabaseTables {
   static const orderItems = 'order_items';
   static const payments = 'payments';
   static const coupons = 'coupons';
+  static const shippingMethods = 'shipping_methods';
   static const reviews = 'reviews';
   static const notifications = 'notifications';
   static const settings = 'settings';

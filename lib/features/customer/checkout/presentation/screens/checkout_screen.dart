@@ -22,13 +22,15 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   final _couponController = TextEditingController();
-  String _paymentMethod = 'Visa';
+  final _utrController = TextEditingController();
+  String _paymentMethod = 'cod';
   bool _placing = false;
   String? _couponError;
 
   @override
   void dispose() {
     _couponController.dispose();
+    _utrController.dispose();
     super.dispose();
   }
 
@@ -45,47 +47,64 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Future<void> _placeOrder() async {
-    final userId = ref.read(currentUserIdProvider);
-    final addressId = ref.read(selectedAddressIdProvider);
+    final addressId = ref.read(selectedAddressIdProvider) ?? ref.read(addressesProvider).value?.firstOrNull?.id;
+    final methods = ref.read(shippingMethodsProvider).value ?? const [];
+    final shippingMethodId = ref.read(selectedShippingMethodIdProvider) ?? methods.firstOrNull?.id;
     final items = ref.read(cartControllerProvider).value ?? [];
-    if (userId == null || addressId == null || items.isEmpty) return;
+    final coupon = ref.read(appliedCouponProvider);
+
+    if (addressId == null || shippingMethodId == null || items.isEmpty) return;
+
+    if (_paymentMethod == 'upi' && _utrController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Enter the UTR / Transaction ID from your UPI app')));
+      return;
+    }
 
     setState(() => _placing = true);
     try {
-      final subtotal = ref.read(cartSubtotalProvider);
-      final coupon = ref.read(appliedCouponProvider);
-      final discount = coupon?.discountFor(subtotal) ?? 0;
-
       final order = await ref.read(orderRepositoryProvider).placeOrder(
-            userId: userId,
-            items: items,
             shippingAddressId: addressId,
-            subtotal: subtotal,
-            shippingFee: shippingFee,
-            discount: discount,
-            couponId: coupon?.id,
+            shippingMethodId: shippingMethodId,
+            couponCode: coupon?.code,
+            paymentProvider: _paymentMethod,
+            paymentTransactionRef: _paymentMethod == 'upi' ? _utrController.text.trim() : null,
           );
-      await ref.read(orderRepositoryProvider).recordPayment(orderId: order.id, provider: _paymentMethod, amount: order.total);
       ref.invalidate(cartControllerProvider);
-      if (mounted) context.go('/checkout/success');
+      if (mounted) context.go('/checkout/success/${order.id}');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not place order. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_friendlyError(e))));
       }
     } finally {
       if (mounted) setState(() => _placing = false);
     }
   }
 
+  String _friendlyError(Object e) {
+    // Postgres RPC exceptions arrive as "PostgrestException(message: <our
+    // raise exception text>, ...)" — surface just the message we wrote in
+    // the function rather than the wrapper noise.
+    final text = e.toString();
+    final match = RegExp(r'message:\s*([^,]+)').firstMatch(text);
+    return match?.group(1)?.trim() ?? 'Could not place order. Please try again.';
+  }
+
   @override
   Widget build(BuildContext context) {
     final addressesAsync = ref.watch(addressesProvider);
     final selectedAddressId = ref.watch(selectedAddressIdProvider);
+    final methodsAsync = ref.watch(shippingMethodsProvider);
+    final selectedMethodId = ref.watch(selectedShippingMethodIdProvider);
     final subtotal = ref.watch(cartSubtotalProvider);
     final coupon = ref.watch(appliedCouponProvider);
     final discount = coupon?.discountFor(subtotal) ?? 0;
+    final methods = methodsAsync.value ?? const [];
+    final shippingFee = methods.isEmpty
+        ? 0
+        : methods.firstWhere((m) => m.id == (selectedMethodId ?? methods.first.id), orElse: () => methods.first).price;
     final total = subtotal + shippingFee - discount;
     final userId = ref.watch(currentUserIdProvider);
+    final canPlaceOrder = selectedAddressId != null || (addressesAsync.value?.isNotEmpty ?? false);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Checkout')),
@@ -128,6 +147,29 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             error: (e, _) => const ErrorView(message: 'Could not load addresses'),
           ),
           const SizedBox(height: 12),
+          const Text('Delivery Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+          const SizedBox(height: 4),
+          methodsAsync.when(
+            data: (methods) => methods.isEmpty
+                ? const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Text('No delivery methods configured.', style: TextStyle(color: AppColors.textSecondary)))
+                : Column(
+                    children: [
+                      for (final m in methods)
+                        RadioListTile<String>(
+                          value: m.id,
+                          groupValue: selectedMethodId ?? methods.first.id,
+                          onChanged: (v) => ref.read(selectedShippingMethodIdProvider.notifier).state = v,
+                          title: Text(m.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          subtitle: Text('${m.description ?? ''} · ${m.etaLabel}'.trim()),
+                          secondary: Text(m.price == 0 ? 'Free' : formatCurrency(m.price), style: const TextStyle(fontWeight: FontWeight.w600)),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                    ],
+                  ),
+            loading: () => const Padding(padding: EdgeInsets.all(16), child: LoadingView()),
+            error: (e, _) => const ErrorView(message: 'Could not load delivery methods'),
+          ),
+          const SizedBox(height: 12),
           const Text('Coupon', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
           const SizedBox(height: 8),
           Row(
@@ -156,14 +198,56 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Wrap(
             spacing: 8,
             children: [
-              for (final method in ['Visa', 'PayPal', 'Mastercard', 'Cash on Delivery'])
-                ChoiceChip(
-                  label: Text(method),
-                  selected: _paymentMethod == method,
-                  onSelected: (_) => setState(() => _paymentMethod = method),
-                ),
+              ChoiceChip(
+                label: const Text('Cash on Delivery'),
+                selected: _paymentMethod == 'cod',
+                onSelected: (_) => setState(() => _paymentMethod = 'cod'),
+              ),
+              ChoiceChip(
+                label: const Text('UPI'),
+                selected: _paymentMethod == 'upi',
+                onSelected: (_) => setState(() => _paymentMethod = 'upi'),
+              ),
             ],
           ),
+          if (_paymentMethod == 'upi') ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.06),
+                border: Border.all(color: AppColors.primary),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('UPI ID', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, letterSpacing: .5)),
+                  const SizedBox(height: 4),
+                  ref.watch(upiCollectionIdProvider).when(
+                        data: (upiId) => Text(upiId ?? 'Not configured', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        loading: () => const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                        error: (e, _) => const Text('Could not load UPI ID', style: TextStyle(color: AppColors.error)),
+                      ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Open GPay, PhonePe or any UPI app → send ${formatCurrency(total)} to the UPI ID above → open transaction history → copy the UTR / Transaction ID',
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _utrController,
+                    decoration: const InputDecoration(labelText: 'UTR / Transaction ID', border: OutlineInputBorder(), isDense: true),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your order will be confirmed once we verify the payment — usually within a few hours.',
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.all(16),
@@ -171,7 +255,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             child: Column(
               children: [
                 _summaryRow('Order', formatCurrency(subtotal)),
-                _summaryRow('Shipping', formatCurrency(shippingFee)),
+                _summaryRow('Shipping', shippingFee == 0 ? 'Free' : formatCurrency(shippingFee)),
                 if (discount > 0) _summaryRow('Discount', '-${formatCurrency(discount)}'),
                 const Divider(),
                 _summaryRow('Total', formatCurrency(total), bold: true),
@@ -184,9 +268,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: PrimaryButton(
-            label: 'Proceed to Payment',
+            label: _paymentMethod == 'upi' ? 'Place Order' : 'Place Order (Cash on Delivery)',
             loading: _placing,
-            onPressed: (selectedAddressId == null && (addressesAsync.value?.isEmpty ?? true)) ? null : _placeOrder,
+            onPressed: !canPlaceOrder ? null : _placeOrder,
           ),
         ),
       ),

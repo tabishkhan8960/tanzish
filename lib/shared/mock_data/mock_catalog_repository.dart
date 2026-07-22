@@ -1,7 +1,7 @@
 import '../models/brand.dart';
 import '../models/category.dart';
+import '../models/inventory_item.dart';
 import '../models/product.dart';
-import '../models/profile.dart';
 import '../models/review.dart';
 import '../repositories/catalog_repository.dart';
 import 'mock_catalog_data.dart';
@@ -103,13 +103,20 @@ class MockCatalogRepository implements CatalogRepository {
         Review(
           id: '$productId-review-$i',
           productId: productId,
-          userId: 'mock-user-$i',
+          customerName: reviewers[(productId.hashCode + i).abs() % reviewers.length],
           rating: 4 + (i % 2),
-          comment: comments[(productId.hashCode + i).abs() % comments.length],
+          reviewDescription: comments[(productId.hashCode + i).abs() % comments.length],
+          verifiedPurchase: true,
           createdAt: DateTime.now().subtract(Duration(days: 3 + i * 11)),
-          profile: Profile(id: 'mock-user-$i', fullName: reviewers[(productId.hashCode + i).abs() % reviewers.length]),
+          updatedAt: DateTime.now().subtract(Duration(days: 3 + i * 11)),
         ),
     ];
+  }
+
+  @override
+  Future<List<InventoryItem>> fetchInventory(String productId) async {
+    await _simulateLatency();
+    return const [];
   }
 
   @override

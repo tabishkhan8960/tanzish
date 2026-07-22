@@ -7,6 +7,7 @@ import '../../core/constants/supabase_tables.dart';
 import '../mock_data/mock_catalog_repository.dart';
 import '../models/brand.dart';
 import '../models/category.dart';
+import '../models/inventory_item.dart';
 import '../models/product.dart';
 import '../models/review.dart';
 
@@ -41,6 +42,10 @@ abstract class CatalogRepository {
   Future<List<Product>> fetchSimilarProducts(Product product, {int limit = 10});
 
   Future<List<Review>> fetchReviews(String productId);
+
+  /// The purchasable variants (size/color/etc.) for a product, e.g. one row
+  /// per {"Size": "M", "Color": "Red"} combination with its own stock count.
+  Future<List<InventoryItem>> fetchInventory(String productId);
 
   /// A single standout on-sale product to headline a "Deal of the Day"
   /// section. Null if nothing qualifies (e.g. no featured product currently
@@ -122,6 +127,12 @@ class SupabaseCatalogRepository implements CatalogRepository {
         .eq('is_approved', true)
         .order('created_at', ascending: false);
     return rows.map(Review.fromJson).toList();
+  }
+
+  @override
+  Future<List<InventoryItem>> fetchInventory(String productId) async {
+    final rows = await _client.from(SupabaseTables.inventory).select().eq('product_id', productId);
+    return rows.map(InventoryItem.fromJson).toList();
   }
 
   @override
