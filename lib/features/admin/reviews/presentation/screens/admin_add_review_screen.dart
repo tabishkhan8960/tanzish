@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/widgets/app_text_field.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/widgets/state_views.dart';
-import '../domain/admin_review_actions.dart';
+import '../../domain/admin_review_actions.dart';
 import '../providers/admin_reviews_providers.dart';
 
 class AdminAddReviewScreen extends ConsumerStatefulWidget {
@@ -28,6 +28,34 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
   bool _verifiedPurchase = true;
   String _status = 'Published';
   bool _saving = false;
+  bool _loadingExisting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.reviewId != null) {
+      _loadExisting(widget.reviewId!);
+    }
+  }
+
+  Future<void> _loadExisting(String id) async {
+    setState(() => _loadingExisting = true);
+    try {
+      final data = await AdminReviewActions.fetchById(id);
+      _customerName.text = data['customer_name'] as String? ?? '';
+      _title.text = data['review_title'] as String? ?? '';
+      _description.text = data['review_description'] as String? ?? '';
+      _avatar.text = data['customer_avatar'] as String? ?? '';
+      _productId = data['product_id'] as String?;
+      _rating = data['rating'] as int? ?? 5;
+      _verifiedPurchase = data['verified_purchase'] as bool? ?? true;
+      _status = data['status'] as String? ?? 'Published';
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not load review: $e')));
+    } finally {
+      if (mounted) setState(() => _loadingExisting = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -82,7 +110,9 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(widget.reviewId == null ? 'Add Review' : 'Edit Review')),
-      body: SingleChildScrollView(
+      body: _loadingExisting
+          ? const LoadingView()
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -94,6 +124,7 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
                 productsAsync.when(
                   data: (products) => DropdownButtonFormField<String>(
                     value: _productId,
+                    isExpanded: true,
                     decoration: const InputDecoration(labelText: 'Select Product *'),
                     items: products.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
                     onChanged: (v) => setState(() => _productId = v),
@@ -103,7 +134,7 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
                   error: (e, _) => const Text('Could not load products'),
                 ),
                 const SizedBox(height: 20),
-                AppTextField(controller: _customerName, label: 'Customer Name *', validator: (v) => v == null || v.isEmpty ? 'Required' : null),
+                AppTextField(controller: _customerName, label: 'Customer Name *', hint: 'Enter customer name', validator: (v) => v == null || v.isEmpty ? 'Required' : null),
                 const SizedBox(height: 20),
                 const Text('Rating', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
@@ -120,11 +151,11 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
                   }),
                 ),
                 const SizedBox(height: 20),
-                AppTextField(controller: _title, label: 'Review Title (Optional)'),
+                AppTextField(controller: _title, label: 'Review Title (Optional)', hint: 'Enter review title'),
                 const SizedBox(height: 20),
-                AppTextField(controller: _description, label: 'Review Description', maxLines: 4),
+                AppTextField(controller: _description, label: 'Review Description', hint: 'Enter review description', maxLines: 4),
                 const SizedBox(height: 20),
-                AppTextField(controller: _avatar, label: 'Customer Avatar URL (Optional)'),
+                AppTextField(controller: _avatar, label: 'Customer Avatar URL (Optional)', hint: 'Enter avatar image URL'),
                 const SizedBox(height: 20),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -143,7 +174,10 @@ class _AdminAddReviewScreenState extends ConsumerState<AdminAddReviewScreen> {
                   children: [
                     TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
                     const SizedBox(width: 16),
-                    PrimaryButton(label: 'Save Review', onPressed: _save, loading: _saving),
+                    SizedBox(
+                      width: 180,
+                      child: PrimaryButton(label: 'Save Review', onPressed: _save, loading: _saving),
+                    ),
                   ],
                 ),
               ],

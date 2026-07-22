@@ -5,7 +5,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/utils/formatters.dart';
 import '../../../../../core/widgets/primary_button.dart';
 import '../../../../../core/widgets/state_views.dart';
-import '../domain/admin_review_actions.dart';
+import '../../domain/admin_review_actions.dart';
 import '../providers/admin_reviews_providers.dart';
 
 class AdminReviewsScreen extends ConsumerStatefulWidget {
@@ -29,10 +29,13 @@ class _AdminReviewsScreenState extends ConsumerState<AdminReviewsScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: PrimaryButton(
-              label: 'Add Review',
-              onPressed: () => context.go('/admin/reviews/new'),
-              icon: Icons.add,
+            child: SizedBox(
+              width: 160,
+              child: PrimaryButton(
+                label: 'Add Review',
+                onPressed: () => context.go('/admin/reviews/new'),
+                icon: Icons.add,
+              ),
             ),
           ),
         ],
@@ -47,6 +50,7 @@ class _AdminReviewsScreenState extends ConsumerState<AdminReviewsScreen> {
                   child: productsAsync.when(
                     data: (products) => DropdownButtonFormField<String?>(
                       value: _selectedProductId,
+                      isExpanded: true,
                       decoration: const InputDecoration(labelText: 'Filter by Product', border: OutlineInputBorder()),
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All Products')),

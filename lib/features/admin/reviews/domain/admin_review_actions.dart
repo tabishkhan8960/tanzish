@@ -4,6 +4,10 @@ import '../../../../shared/models/review.dart';
 class AdminReviewActions {
   static const _table = 'product_reviews';
 
+  static Future<Map<String, dynamic>> fetchById(String id) async {
+    return await SupabaseConfig.client.from(_table).select().eq('id', id).single();
+  }
+
   static Future<void> createReview(Map<String, dynamic> data) async {
     await SupabaseConfig.client.from(_table).insert(data);
   }
